@@ -1,0 +1,220 @@
+{
+  "schema": "adico.sy_limited_hebrew.v1",
+  "source_book": "Sefer Yetzira / Book of Formations",
+  "source_advanced": "/Users/adicohen/work/extension/advanced/SY",
+  "source_dict": "/Users/adicohen/Projects/יבש/sefer_yetzira_dictionary_from_logs.spec.json",
+  "owner": "adi",
+  "rule": "limited Hebrew only — terms from this lexicon; not multi-lingual free speech",
+  "entries": [
+    {
+      "id": "T01",
+      "from": "מים",
+      "to": "קלט (input)",
+      "kind": "substrate",
+      "verse_ref": "פרק א משנה י-יא"
+    },
+    {
+      "id": "T02",
+      "from": "אש",
+      "to": "פלט (output)",
+      "kind": "substrate",
+      "verse_ref": "פרק א משנה יב"
+    },
+    {
+      "id": "T03",
+      "from": "אויר",
+      "to": "תהליך ללא סימן",
+      "kind": "substrate",
+      "verse_ref": "פרק ג משנה ב"
+    },
+    {
+      "id": "T04",
+      "from": "יוצר",
+      "to": "סימן תהליך בלי סימן",
+      "kind": "actor",
+      "verse_ref": null
+    },
+    {
+      "id": "T05",
+      "from": "למכונו",
+      "to": "לסימנו",
+      "kind": "phrase",
+      "verse_ref": null
+    },
+    {
+      "id": "T06",
+      "from": "אות בשם",
+      "to": "סימן סימנו של בקר מכוון שם",
+      "kind": "letter",
+      "verse_ref": null
+    },
+    {
+      "id": "T07",
+      "from": "ממיר_אינם_לישנם",
+      "to": "תהליך השלמה שיוצר או מתקן את ברא",
+      "kind": "verb",
+      "verse_ref": null
+    },
+    {
+      "id": "T08",
+      "from": "1 ראשית",
+      "to": "לולאה, לא קו",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T09",
+      "from": "2 אחרית",
+      "to": "רוב הסופים פתוחים",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T10",
+      "from": "3 טוב",
+      "to": "סגירה (לא הרשאה)",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T11",
+      "from": "4 רע",
+      "to": "מבנה (לא מקרה)",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T12",
+      "from": "5 רום",
+      "to": "epistemics (הברא העליון, לא power)",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T13",
+      "from": "6 תחת",
+      "to": "החומר — המקום שעליו המפרט נח",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T14",
+      "from": "7 מזרח",
+      "to": "קדם בערוץ, לא בזמן",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T15",
+      "from": "8 מערב",
+      "to": "ההיסטוריה הד יחיד / single history",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T16",
+      "from": "9 צפון",
+      "to": "בלי עד_קובץ — אין קיבוע",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T17",
+      "from": "10 דרום",
+      "to": "4 חושים מספיקים / החום, ההיתר, מי מורשה לפעול",
+      "kind": "depth_omek",
+      "verse_ref": null
+    },
+    {
+      "id": "T18",
+      "from": "עומק מערב",
+      "to": "אחור, היסטוריה, מה שכבר הוחלט",
+      "kind": "depth_phrase",
+      "verse_ref": null
+    },
+    {
+      "id": "T19",
+      "from": "עומק אחרית",
+      "to": "סוף, סגירה, outbox, sealed records",
+      "kind": "depth_phrase",
+      "verse_ref": null
+    },
+    {
+      "id": "T20",
+      "from": "צפה",
+      "to": "קשר ממליך בין חלקים",
+      "kind": "verb",
+      "verse_ref": null
+    },
+    {
+      "id": "T21",
+      "from": "הבט",
+      "to": "קלט גולמי",
+      "kind": "verb",
+      "verse_ref": null
+    },
+    {
+      "id": "T22",
+      "from": "ראה",
+      "to": "הופעת הבחנות בתוך הקלט / שכבות מסומנות",
+      "kind": "verb",
+      "verse_ref": null
+    },
+    {
+      "id": "T23",
+      "from": "צר",
+      "to": "summarize / סיכום סוף ה-10",
+      "kind": "verb",
+      "verse_ref": null
+    },
+    {
+      "id": "T24",
+      "from": "שוכנים",
+      "to": "גורמים שפועלים בתוך הקלט (DOM atoms)",
+      "kind": "entity",
+      "verse_ref": null
+    },
+    {
+      "id": "T25",
+      "from": "fully_attested",
+      "to": "7/7 עדים נחתמו (false = ≤6/7)",
+      "kind": "state",
+      "verse_ref": null
+    },
+    {
+      "id": "T26",
+      "from": "7 עדים",
+      "to": "עד_קובץ, עד_תהליך, עד_לוג, עד_API, עד_בקשת_משתמש, עד_זמן, עד_תוצאה",
+      "kind": "structure",
+      "verse_ref": null
+    },
+    {
+      "id": "T27",
+      "from": "ב\"ה (פרק ו)",
+      "to": "ע\"ה (טעות בלוג, אדי תיקן)",
+      "kind": "correction",
+      "verse_ref": null
+    },
+    {
+      "id": "T28",
+      "from": "intent=ראה",
+      "to": "appearance of distinctions in input",
+      "kind": "intent",
+      "verse_ref": null
+    },
+    {
+      "id": "T29",
+      "from": "intent=הביט",
+      "to": "observation downward, toward matter",
+      "kind": "intent",
+      "verse_ref": null
+    },
+    {
+      "id": "T30",
+      "from": "intent=צפה",
+      "to": "recommending connection between parts",
+      "kind": "intent",
+      "verse_ref": null
+    }
+  ]
+}

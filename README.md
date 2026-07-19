@@ -5,23 +5,28 @@
 
 Industry-shaped AI API. **Data stays local. Life is on the network.** Many develop it; many use it after.
 
-## Talk (this stage) — not multi-lingual yet
+## Talk (this stage) — not multi-lingual
 
 There **is** a way to talk to the deterministic AI now.  
-People **must learn that speech** (sealed forms → ids). Free multi-language chat is **not** the product yet.
+People **must learn that speech** (sealed forms → ids).
 
 | | |
 |---|---|
 | **Wire** | industry (OpenAI / Ollama / Anthropic-shaped) |
-| **Speech** | sealed forms only — see **[docs/TALK.md](docs/TALK.md)** or `GET /v1/talk` |
-| **Everything** | grows when catalog gains ids + forms; users learn to speak them |
+| **Hebrew** | **limited only** — Sefer Yetzira / Book of Formations lexicon (from advanced SY + Adi dict) |
+| **English tools** | sealed forms (`17*19`, `hash …`, …) |
+| **Everything** | more book terms + ops; users learn to speak them |
 | **Unknown words** | honest miss — no invention |
 
 ```bash
 curl -s http://127.0.0.1:8843/v1/talk | python3 -m json.tool
+# limited Hebrew example:
+curl -s http://127.0.0.1:8843/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"messages":[{"role":"user","content":"מים אש אויר"}]}'
 ```
 
-Examples of speech that work today: `17*19` · `time` · `hash hello` · `len abcd` · `who are you`
+See **[docs/TALK.md](docs/TALK.md)**. Advanced book tree: `~/work/extension/advanced/SY`
 
 ## Product law
 
@@ -32,7 +37,7 @@ Examples of speech that work today: `17*19` · `time` · `hash hello` · `len ab
 | This API (potential) | answers **everything in parallel** via sealed ops |
 | Deterministic | speech form → **id** → **install** → **execute(params)** → **(answer, answer_that_answers)** |
 | Waste | talk little (form only), do much · **compute once** · re-ask → **one op answer** |
-| Multi-lingual | **not yet** — one sealed speech surface |
+| Multi-lingual | **no** — English tool forms + **limited SY Hebrew** only |
 | Data | **local** per user machine |
 | Life | **network**: protocol, catalog of ids, multi-dev, multi-user |
 

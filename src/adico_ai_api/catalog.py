@@ -16,11 +16,15 @@ from pathlib import Path
 from typing import Any, Callable
 
 from . import config
+from . import sy_lexicon
 
 # op_id → handler(params) -> str answer
 _OPS: dict[str, Callable[[dict], str]] = {}
 # phrase / pattern → (op_id, param_extractor)
 _ROUTES: list[tuple[re.Pattern, str, Callable[[re.Match], dict]]] = []
+
+# Sefer Yetzira limited Hebrew — Book of Formations lexicon (not free multi-lingual)
+_OPS["sy.lexicon.translate"] = sy_lexicon.execute_translate
 
 
 def _reg(op_id: str, patterns: list[str], extract: Callable[[re.Match], dict], fn: Callable[[dict], str]):
@@ -186,10 +190,23 @@ TALK_FORMS: list[dict] = [
 def talk_protocol() -> dict:
     return {
         "multilingual": False,
+        "hebrew": {
+            "mode": "limited",
+            "source": "Sefer Yetzira / Book of Formations",
+            "advanced_repo": "/Users/adicohen/work/extension/advanced/SY",
+            "lexicon": sy_lexicon.lexicon_meta(),
+            "rule": "only terms in the SY lexicon — not free Hebrew, not multi-lingual",
+            "example": "מים אש אויר",
+            "forms_sample": sy_lexicon.talk_forms()[:12],
+            "forms_all_count": len(sy_lexicon.talk_forms()),
+        },
         "stage": "learn_sealed_speech",
-        "rule": "people must learn forms to request work; free chat is not multi-lingual yet",
-        "path_to_everything": "more ids + more forms in catalog; users learn to talk them",
-        "forms": TALK_FORMS,
+        "rule": (
+            "people must learn forms to request work; "
+            "English tool forms + limited SY Hebrew only"
+        ),
+        "path_to_everything": "more ids + more SY terms from advanced book; users learn to talk them",
+        "forms_english_tools": TALK_FORMS,
         "docs": "docs/TALK.md",
     }
 
@@ -228,23 +245,23 @@ _load_extra()
 
 def translate(text: str) -> dict | None:
     """
-    questions-of-question → id + params.
-    Returns None if no sealed id (not invented).
+    speech form → id + params.
+    Order:
+      1) English sealed tool forms (arith, hash, …) — full utterance
+      2) Limited Hebrew — Sefer Yetzira lexicon only (Book of Formations)
+    Returns None if no sealed id (not invented). Not multi-lingual free speech.
     """
     t = (text or "").strip()
     if not t:
         return None
-    # strip trailing ? for arith etc already in patterns
     for rx, op_id, extract in _ROUTES:
-        m = rx.search(t)
+        m = rx.fullmatch(t)
         if not m:
             continue
-        # for full-match preference: if pattern is ^...$ style, search is fine
         try:
             params = extract(m)
         except Exception:
             params = {}
-        # arith guard: must look like expression
         if op_id == "op.arith":
             expr = (params.get("expr") or "").strip()
             if not expr or not any(c.isdigit() for c in expr) or not any(o in expr for o in "+-*/%"):
@@ -254,6 +271,11 @@ def translate(text: str) -> dict | None:
             except Exception:
                 continue
         return {"id": op_id, "params": params, "question_of_question": t}
+
+    # Limited Hebrew from Book of Formations (advanced SY / Adi dictionary)
+    sy = sy_lexicon.translate_input(t)
+    if sy is not None:
+        return sy
     return None
 
 
@@ -279,3 +301,8 @@ def execute(op_id: str, params: dict) -> str:
 
 def list_ops() -> list[str]:
     return sorted(_OPS.keys())
+
+
+def list_sy_term_ids() -> list[str]:
+    sy_lexicon._load()
+    return [f"sy.{e['id']}" for e in (sy_lexicon._LEX or {}).get("entries") or []]

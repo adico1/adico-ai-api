@@ -38,10 +38,10 @@ def run_one(text: str) -> dict[str, Any]:
                 "product": PRODUCT_ID,
             },
             "text": (
-                f"{PRODUCT_NAME}: no sealed id — not multi-lingual yet. "
-                "Learn sealed speech: GET /v1/talk or docs/TALK.md. "
-                "Speak a catalog form to request an op. "
-                "Everything grows by new ids + forms, not free prose."
+                f"{PRODUCT_NAME}: no sealed id — not multi-lingual. "
+                "Speak English tool form or limited Sefer Yetzira Hebrew (Book of Formations). "
+                "Learn: GET /v1/talk · docs/TALK.md. "
+                "Everything grows by more book terms + ops."
             ),
         }
 
