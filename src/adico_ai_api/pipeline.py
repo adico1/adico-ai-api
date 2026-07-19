@@ -53,9 +53,9 @@ def run_one(text: str) -> dict[str, Any]:
                 "representation": bits64.dual_rep(external=text or ""),
             },
             "text": (
-                f"{PRODUCT_NAME}: no sealed id — not multi-lingual. "
-                "External: limited SY Hebrew (22-letter combinations) or tool forms. "
-                "Internal: 64-bit. Learn: GET /v1/talk · docs/TALK.md."
+                f"{PRODUCT_NAME}: no_sy_word. "
+                "Speech=SY lexicon words only. Target=programming terms only. "
+                "No free Hebrew. No mysticism. Learn words: GET /v1/talk."
             ),
         }
 

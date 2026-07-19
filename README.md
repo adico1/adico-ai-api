@@ -5,28 +5,25 @@
 
 Industry-shaped AI API. **Data stays local. Life is on the network.** Many develop it; many use it after.
 
-## Talk (this stage) — not multi-lingual
-
-There **is** a way to talk to the deterministic AI now.  
-People **must learn that speech** (sealed forms → ids).
+## Talk — SY words only → programming terms only
 
 | | |
 |---|---|
-| **Wire** | industry (OpenAI / Ollama / Anthropic-shaped) |
-| **Hebrew** | **limited only** — Sefer Yetzira / Book of Formations lexicon (from advanced SY + Adi dict) |
-| **English tools** | sealed forms (`17*19`, `hash …`, …) |
-| **Everything** | more book terms + ops; users learn to speak them |
-| **Unknown words** | honest miss — no invention |
+| **Speech** | **only SY lexicon words** (Book of Formations) |
+| **Answer map** | **programming / tech terms only** — no mysticism |
+| **Wire** | industry OpenAI / Ollama / Anthropic-shaped |
+| **Internal** | 64-bit |
+| **Unknown** | `no_sy_word` |
 
 ```bash
 curl -s http://127.0.0.1:8843/v1/talk | python3 -m json.tool
-# limited Hebrew example:
 curl -s http://127.0.0.1:8843/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -d '{"messages":[{"role":"user","content":"מים אש אויר"}]}'
+  -d '{"messages":[{"role":"user","content":"מים אש ואויר"}]}'
+# → programming: input -> output -> process
 ```
 
-See **[docs/TALK.md](docs/TALK.md)**. Advanced book tree: `~/work/extension/advanced/SY`
+See **[docs/TALK.md](docs/TALK.md)**. Advanced: `~/work/extension/advanced/SY`
 
 ## Product law
 
@@ -37,7 +34,9 @@ See **[docs/TALK.md](docs/TALK.md)**. Advanced book tree: `~/work/extension/adva
 | This API (potential) | answers **everything in parallel** via sealed ops |
 | Deterministic | speech form → **id** → **install** → **execute(params)** → **(answer, answer_that_answers)** |
 | Waste | talk little (form only), do much · **compute once** · re-ask → **one op answer** |
-| Multi-lingual | **no** — English tool forms + **limited SY Hebrew** only |
+| Speech | **SY words only** |
+| Map | **programming terms only** (no mysticism) |
+| Multi-lingual | **no** |
 | Representation | **Hebrew + spaces + punct external** · **64-bit internal** |
 | History law | Babylonians spoke 64-bit · Hebrew simplified to 22-letter combinations |
 | Data | **local** per user machine |

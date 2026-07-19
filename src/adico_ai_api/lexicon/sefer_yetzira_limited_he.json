@@ -2,250 +2,35 @@
   "schema": "adico.sy_limited_hebrew.v1",
   "source_book": "Sefer Yetzira / Book of Formations",
   "source_advanced": "/Users/adicohen/work/extension/advanced/SY",
-  "source_dict": "/Users/adicohen/Projects/יבש/sefer_yetzira_dictionary_from_logs.spec.json",
   "owner": "adi",
-  "rule": "limited Hebrew (Book of Formations) → plain computer language; not multi-lingual free speech; ו-prefix allowed (e.g. ואויר)",
+  "rule": "ONLY SY lexicon words as speech. Map each word to programming/tech terms only. No mysticism. No free Hebrew. No multi-lingual. ו-prefix allowed.",
+  "speech": "sy_words_only",
+  "target": "programming_terms_only",
   "entries": [
-    {
-      "id": "T01",
-      "from": "מים",
-      "to": "input",
-      "kind": "substrate",
-      "verse_ref": "פרק א משנה י-יא",
-      "to_book": "קלט (input)"
-    },
-    {
-      "id": "T02",
-      "from": "אש",
-      "to": "output",
-      "kind": "substrate",
-      "verse_ref": "פרק א משנה יב",
-      "to_book": "פלט (output)"
-    },
-    {
-      "id": "T03",
-      "from": "אויר",
-      "to": "process",
-      "kind": "substrate",
-      "verse_ref": "פרק ג משנה ב",
-      "to_book": "תהליך ללא סימן"
-    },
-    {
-      "id": "T04",
-      "from": "יוצר",
-      "to": "process_marker",
-      "kind": "actor",
-      "verse_ref": null,
-      "to_book": "סימן תהליך בלי סימן"
-    },
-    {
-      "id": "T05",
-      "from": "למכונו",
-      "to": "to_its_symbol",
-      "kind": "phrase",
-      "verse_ref": null,
-      "to_book": "לסימנו"
-    },
-    {
-      "id": "T06",
-      "from": "אות בשם",
-      "to": "named_control_symbol",
-      "kind": "letter",
-      "verse_ref": null,
-      "to_book": "סימן סימנו של בקר מכוון שם"
-    },
-    {
-      "id": "T07",
-      "from": "ממיר_אינם_לישנם",
-      "to": "complete_or_repair",
-      "kind": "verb",
-      "verse_ref": null,
-      "to_book": "תהליך השלמה שיוצר או מתקן את ברא"
-    },
-    {
-      "id": "T08",
-      "from": "1 ראשית",
-      "to": "loop_not_line",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "לולאה, לא קו"
-    },
-    {
-      "id": "T09",
-      "from": "2 אחרית",
-      "to": "open_ends",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "רוב הסופים פתוחים"
-    },
-    {
-      "id": "T10",
-      "from": "3 טוב",
-      "to": "close",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "סגירה (לא הרשאה)"
-    },
-    {
-      "id": "T11",
-      "from": "4 רע",
-      "to": "structure",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "מבנה (לא מקרה)"
-    },
-    {
-      "id": "T12",
-      "from": "5 רום",
-      "to": "upper_spec",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "epistemics (הברא העליון, לא power)"
-    },
-    {
-      "id": "T13",
-      "from": "6 תחת",
-      "to": "matter_base",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "החומר — המקום שעליו המפרט נח"
-    },
-    {
-      "id": "T14",
-      "from": "7 מזרח",
-      "to": "channel_front",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "קדם בערוץ, לא בזמן"
-    },
-    {
-      "id": "T15",
-      "from": "8 מערב",
-      "to": "single_history",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "ההיסטוריה הד יחיד / single history"
-    },
-    {
-      "id": "T16",
-      "from": "9 צפון",
-      "to": "no_file_witness",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "בלי עד_קובץ — אין קיבוע"
-    },
-    {
-      "id": "T17",
-      "from": "10 דרום",
-      "to": "authorization_heat",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "4 חושים מספיקים / החום, ההיתר, מי מורשה לפעול"
-    },
-    {
-      "id": "T18",
-      "from": "עומק מערב",
-      "to": "history_back",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "אחור, היסטוריה, מה שכבר הוחלט"
-    },
-    {
-      "id": "T19",
-      "from": "עומק אחרית",
-      "to": "sealed_outbox",
-      "kind": "depth_omek",
-      "verse_ref": null,
-      "to_book": "סוף, סגירה, outbox, sealed records"
-    },
-    {
-      "id": "T20",
-      "from": "צפה",
-      "to": "link_parts",
-      "kind": "verb",
-      "verse_ref": null,
-      "to_book": "קשר ממליך בין חלקים"
-    },
-    {
-      "id": "T21",
-      "from": "הבט",
-      "to": "raw_input",
-      "kind": "verb",
-      "verse_ref": null,
-      "to_book": "קלט גולמי"
-    },
-    {
-      "id": "T22",
-      "from": "ראה",
-      "to": "parse_layers",
-      "kind": "verb",
-      "verse_ref": null,
-      "to_book": "הופעת הבחנות בתוך הקלט / שכבות מסומנות"
-    },
-    {
-      "id": "T23",
-      "from": "צר",
-      "to": "summarize",
-      "kind": "verb",
-      "verse_ref": null,
-      "to_book": "summarize / סיכום סוף ה-10"
-    },
-    {
-      "id": "T24",
-      "from": "שוכנים",
-      "to": "agents_in_input",
-      "kind": "noun",
-      "verse_ref": null,
-      "to_book": "גורמים שפועלים בתוך הקלט (DOM atoms)"
-    },
-    {
-      "id": "T25",
-      "from": "fully_attested",
-      "to": "fully_attested",
-      "kind": "flag",
-      "verse_ref": null,
-      "to_book": "7/7 עדים נחתמו (false = ≤6/7)"
-    },
-    {
-      "id": "T26",
-      "from": "7 עדים",
-      "to": "seven_witnesses",
-      "kind": "set",
-      "verse_ref": null,
-      "to_book": "עד_קובץ, עד_תהליך, עד_לוג, עד_API, עד_בקשת_משתמש, עד_זמן, עד_תוצאה"
-    },
-    {
-      "id": "T27",
-      "from": "ב\"ה (פרק ו)",
-      "to": "chapter_marker",
-      "kind": "note",
-      "verse_ref": null,
-      "to_book": "ע\"ה (טעות בלוג, אדי תיקן)"
-    },
-    {
-      "id": "T28",
-      "from": "intent=ראה",
-      "to": "intent_see",
-      "kind": "intent",
-      "verse_ref": null,
-      "to_book": "appearance of distinctions in input"
-    },
-    {
-      "id": "T29",
-      "from": "intent=הביט",
-      "to": "intent_look_down",
-      "kind": "intent",
-      "verse_ref": null,
-      "to_book": "observation downward, toward matter"
-    },
-    {
-      "id": "T30",
-      "from": "intent=צפה",
-      "to": "intent_link",
-      "kind": "intent",
-      "verse_ref": null,
-      "to_book": "recommending connection between parts"
-    }
-  ],
-  "computer_first": true
+    {"id": "T01", "from": "מים", "to": "input", "kind": "io"},
+    {"id": "T02", "from": "אש", "to": "output", "kind": "io"},
+    {"id": "T03", "from": "אויר", "to": "process", "kind": "io"},
+    {"id": "T04", "from": "יוצר", "to": "process_tag", "kind": "op"},
+    {"id": "T05", "from": "למכונו", "to": "bind_symbol", "kind": "op"},
+    {"id": "T06", "from": "אות בשם", "to": "named_control", "kind": "symbol"},
+    {"id": "T07", "from": "ממיר_אינם_לישנם", "to": "complete_or_fix", "kind": "op"},
+    {"id": "T08", "from": "1 ראשית", "to": "loop", "kind": "control_flow"},
+    {"id": "T09", "from": "2 אחרית", "to": "open_exit", "kind": "control_flow"},
+    {"id": "T10", "from": "3 טוב", "to": "commit", "kind": "control_flow"},
+    {"id": "T11", "from": "4 רע", "to": "struct", "kind": "data"},
+    {"id": "T12", "from": "5 רום", "to": "schema_top", "kind": "data"},
+    {"id": "T13", "from": "6 תחת", "to": "data_base", "kind": "data"},
+    {"id": "T14", "from": "7 מזרח", "to": "channel_head", "kind": "channel"},
+    {"id": "T15", "from": "8 מערב", "to": "history_log", "kind": "channel"},
+    {"id": "T16", "from": "9 צפון", "to": "unsealed", "kind": "state"},
+    {"id": "T17", "from": "10 דרום", "to": "auth", "kind": "state"},
+    {"id": "T18", "from": "עומק מערב", "to": "history_back", "kind": "state"},
+    {"id": "T19", "from": "עומק אחרית", "to": "sealed_outbox", "kind": "state"},
+    {"id": "T20", "from": "צפה", "to": "link", "kind": "op"},
+    {"id": "T21", "from": "הבט", "to": "raw_input", "kind": "op"},
+    {"id": "T22", "from": "ראה", "to": "parse", "kind": "op"},
+    {"id": "T23", "from": "צר", "to": "reduce", "kind": "op"},
+    {"id": "T24", "from": "שוכנים", "to": "runtime_agents", "kind": "runtime"},
+    {"id": "T26", "from": "7 עדים", "to": "witness_set", "kind": "runtime"}
+  ]
 }

@@ -1,198 +1,80 @@
-# How to talk to adico-ops (this stage)
-
-**Not multi-lingual.**  
-Speech is **learned sealed forms** → **ids**. Free chat is not the product.
-
-### Representation law
-
-| face | medium |
-|---|---|
-| **External** | Hebrew 22 letters + **empty spaces** + **punctuation** |
-| **Internal** | **64-bit** words (Babylonian machine face) |
-
-Babylonians spoke 64-bit. Hebrew simplified that to 22 letters.  
-**We use Hebrew externally and 64-bit internally.**  
-Spaces and punctuation are part of the external stream and are packed into 64-bit limbs (not dropped).
-
-Every sealed answer carries `answer_that_answers.representation`:
-- `external.stream` (letters + spaces + punct)
-- `external.hebrew_stream_22` (letters only)
-- `internal.u64_limbs` / `op_u64_hex`
-- per-term dual for SY matches
-
-Examples that pack differently because of space/punct:
-
-```text
-מים אש אויר
-מים, אש; אויר!
-```
-
-### Hebrew (limited only)
-
-Hebrew is **not** free modern Hebrew.  
-It is **limited Hebrew from Sefer Yetzira (Book of Formations)** — the lexicon aligned with the advanced Creators SY book:
-
-- source book mapping: Sefer Yetzira terms → computer language  
-- advanced tree (owner): `/Users/adicohen/work/extension/advanced/SY`  
-- shipped lexicon: `src/adico_ai_api/lexicon/sefer_yetzira_limited_he.json` (30 sealed terms)
-
-Examples that work (plain computer language, less mystical):
-
-```text
-מים אש אויר
-מים אש ואויר
-```
-
-→
-```text
-computer language:
-  input → output → process
-
-map:
-  מים = input
-  אש = output
-  אויר = process   (ואויר also matches — Hebrew "and")
-```
-
-Unknown Hebrew words (not in the book lexicon) → **no id** (honest miss).
-
-Industry clients still use OpenAI/Ollama/Anthropic **wires**.  
-What you put in `content` / `prompt` must be **catalog speech**.
+# How to talk (HE API)
 
 ## Law
 
 | | |
 |---|---|
-| Want **everything** | grow **SY lexicon + ops** from the book · users learn those terms |
-| Want an answer **now** | speak a form below or a SY term from the lexicon |
-| Unknown speech | **no sealed id** → honest miss |
-| Same speech again | **one op answer** from local cache |
+| **Speech** | **SY words only** (Sefer Yetzira / Book of Formations lexicon) |
+| **Target** | **programming / computer terms only** |
+| **Mysticism** | **none** — no mystic gloss in answers |
+| **Multi-lingual** | **no** |
+| **Internal** | 64-bit |
+| **Spaces / punct** | allowed in the stream |
 
 ```
-your words  →  form or SY term  →  id  →  install  →  execute(params)
-            →  (answer, answer_that_answers)
+SY word(s)  →  programming term(s)  →  u64
 ```
 
-## A) Limited Hebrew — Book of Formations
+People **learn the SY word list**. Unknown words → `no_sy_word`.
 
-```bash
-curl -s http://127.0.0.1:8843/v1/talk | python3 -c 'import sys,json;d=json.load(sys.stdin);print(json.dumps(d["hebrew"],ensure_ascii=False,indent=2)[:2000])'
+## Core I/O example
+
+```text
+מים אש ואויר
 ```
 
-Sample terms (full list in lexicon / `/v1/talk`):
+```text
+programming:
+  input -> output -> process
 
-| say (Hebrew) | computer language |
+sy_word -> programming_term:
+  מים = input
+  אש = output
+  אויר = process
+```
+
+## Full map (stage lexicon)
+
+| SY word | programming term |
 |---|---|
-| מים | קלט (input) |
-| אש | פלט (output) |
-| אויר | תהליך ללא סימן |
-| יוצר | סימן תהליך בלי סימן |
-| הבט | קלט גולמי |
-| ראה | הופעת הבחנות בתוך הקלט |
-| צפה | קשר ממליך בין חלקים |
+| מים | input |
+| אש | output |
+| אויר | process |
+| יוצר | process_tag |
+| למכונו | bind_symbol |
+| אות בשם | named_control |
+| ממיר_אינם_לישנם | complete_or_fix |
+| 1 ראשית | loop |
+| 2 אחרית | open_exit |
+| 3 טוב | commit |
+| 4 רע | struct |
+| 5 רום | schema_top |
+| 6 תחת | data_base |
+| 7 מזרח | channel_head |
+| 8 מערב | history_log |
+| 9 צפון | unsealed |
+| 10 דרום | auth |
+| עומק מערב | history_back |
+| עומק אחרית | sealed_outbox |
+| צפה | link |
+| הבט | raw_input |
+| ראה | parse |
+| צר | reduce |
+| שוכנים | runtime_agents |
+| 7 עדים | witness_set |
 
-Compose several terms in one line; each match is translated.
+`ו` prefix = and (e.g. `ואויר` → process).
 
-## B) English tool forms (stage 0.1)
+Live list: `GET /v1/talk` → `sy.lexicon`.
 
-Use these as the message body (examples are the teaching).
+## Not supported as speech
 
-### Sum — `op.arith.sum` (on the HE API)
+- Free modern Hebrew outside the list  
+- Mystic / religious explanation as the answer  
+- English prose as the HE language  
 
-```text
-sum 1 2 3
-sum(1,2,3)
-sum 10+20+30
-סכום 1 2 3
-סכום(10, 20)
-```
+Optional **machine ops** (`sum`, `hash`, arith, …) are **not SY speech** — they are separate dev tools (`machine_ops_not_sy` in `/v1/talk`).
 
-→ computer: `sum(1 + 2 + 3) = 6`
+## Wire
 
-### Arithmetic — `op.arith`
-
-```text
-17*19
-2+2
-calc 3*(4+5)
-= 10/2
-```
-
-Digits and `+ - * / % ( )` only (optional `calc` / `=` prefix).
-
-### Time — `op.time.now`
-
-```text
-time
-clock
-now
-what is the time
-```
-
-### Date — `op.date.today`
-
-```text
-date
-today
-what is the date
-```
-
-### Hash — `op.hash.sha256`
-
-```text
-hash <text>
-sha256 <text>
-hsh <text>
-```
-
-### Length — `op.text.len`
-
-```text
-len <text>
-```
-
-### Reverse — `op.text.reverse`
-
-```text
-reverse <text>
-```
-
-### Identity — `op.identity`
-
-```text
-who are you
-what are you
-your name
-```
-
-### Install marker — `op.catalog.install`
-
-```text
-install id <op.id>
-install_id <op.id>
-```
-
-## Parallel (many requests)
-
-```bash
-curl -s http://127.0.0.1:8843/v1/ops/batch \
-  -H 'Content-Type: application/json' \
-  -d '{"texts":["17*19","len hello","hash x"]}'
-```
-
-Or chat with `"texts":[...]` / `"adico_parallel": true`.
-
-## What is not talk
-
-- Multi-lingual free speech — **no**
-- Free modern Hebrew outside the SY lexicon — **no**
-- Prose without a form / book term — **no id** → miss
-
-## How “everything” arrives
-
-1. Grow the **Book of Formations** lexicon + ops from **advanced/SY** chapters.  
-2. Each term/id ships **how to say it**.  
-3. Users **learn** limited SY Hebrew + tool forms (`GET /v1/talk`).  
-4. Surface grows → **everything**, still deterministic.
-
-Talk little. Speak book term or form. Do much. Compute once.
+Industry HTTP still: `POST /v1/chat/completions` with SY words in `content`.

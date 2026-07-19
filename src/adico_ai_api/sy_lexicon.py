@@ -1,22 +1,25 @@
 """
-Limited Hebrew speech — Sefer Yetzira (Book of Formations) only.
+SY speech only → programming terms only.
 
-Source lexicon: Adi dictionary (logs) aligned with advanced Creators SY repo.
-Not multi-lingual. Not free Hebrew. Only terms in the sealed lexicon.
+- External speech: Sefer Yetzira lexicon words only (optional ו- prefix).
+- Internal map: computers / programming terms only (no mysticism).
+- Not multi-lingual. Not free Hebrew.
 """
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 _LEX: dict | None = None
 _TERMS_SORTED: list[dict] = []
 
-# default pack shipped in package; override with ADICO_SY_LEXICON
 _DEFAULT = Path(__file__).resolve().parent / "lexicon" / "sefer_yetzira_limited_he.json"
-# optional live advanced tree (owner machine) — docs only / future expand
 ADVANCED_SY = Path("/Users/adicohen/work/extension/advanced/SY")
+
+# programming term: snake_case or known tech tokens only
+_PROG_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 def _load() -> dict:
@@ -29,36 +32,58 @@ def _load() -> dict:
     if not path.is_file():
         path = _DEFAULT
     data = json.loads(path.read_text(encoding="utf-8"))
-    entries = list(data.get("entries") or [])
-    # longest term first so "אות בשם" wins over shorter fragments
+    entries = []
+    for e in data.get("entries") or []:
+        fr = (e.get("from") or "").strip()
+        to = (e.get("to") or "").strip()
+        if not fr or not to:
+            continue
+        # reject non-programming targets (must stay technological)
+        if not _PROG_RE.match(to):
+            continue
+        # reject English-looking speech forms — SY words only for `from`
+        if re.search(r"[A-Za-z]", fr):
+            continue
+        entries.append(
+            {
+                "id": e.get("id"),
+                "from": fr,
+                "to": to,
+                "kind": e.get("kind") or "term",
+            }
+        )
     entries.sort(key=lambda e: len(e.get("from") or ""), reverse=True)
-    _LEX = data
+    _LEX = {
+        "schema": data.get("schema"),
+        "source_book": data.get("source_book"),
+        "source_advanced": data.get("source_advanced"),
+        "rule": data.get("rule"),
+        "speech": "sy_words_only",
+        "target": "programming_terms_only",
+        "entries": entries,
+    }
     _TERMS_SORTED = entries
-    return data
+    return _LEX
 
 
 def lexicon_meta() -> dict[str, Any]:
     d = _load()
     return {
         "schema": d.get("schema"),
+        "speech": "sy_words_only",
+        "target": "programming_terms_only",
         "source_book": d.get("source_book"),
         "source_advanced": d.get("source_advanced"),
         "rule": d.get("rule"),
         "entry_count": len(d.get("entries") or []),
         "advanced_sy_present": ADVANCED_SY.is_dir(),
-        "lexicon_path": str(
-            Path(__import__("os").environ.get("ADICO_SY_LEXICON", str(_DEFAULT))).expanduser()
-            if __import__("os").environ.get("ADICO_SY_LEXICON")
-            else _DEFAULT
-        ),
+        "words": [e["from"] for e in d.get("entries") or []],
+        "programming_terms": [e["to"] for e in d.get("entries") or []],
     }
 
 
 def match_terms(text: str) -> list[dict]:
-    """Find lexicon terms inside text (limited Hebrew only).
-
-    Also matches Hebrew conjunction prefix ו (and), e.g. ואויר → אויר.
-    """
+    """Match SY words only (optional Hebrew ו-and prefix)."""
     _load()
     t = text or ""
     if not t.strip():
@@ -66,10 +91,7 @@ def match_terms(text: str) -> list[dict]:
     used_spans: list[tuple[int, int]] = []
     matches: list[dict] = []
     for e in _TERMS_SORTED:
-        term = e.get("from") or ""
-        if not term:
-            continue
-        # surface forms: bare term + optional ו- prefix (and)
+        term = e["from"]
         forms = [term]
         if not term.startswith("ו"):
             forms.append("ו" + term)
@@ -89,10 +111,8 @@ def match_terms(text: str) -> list[dict]:
                         "id": e["id"],
                         "from": term,
                         "surface": form,
-                        "to": e.get("to"),
-                        "to_book": e.get("to_book"),
-                        "kind": e.get("kind"),
-                        "verse_ref": e.get("verse_ref"),
+                        "to": e["to"],
+                        "kind": e["kind"],
                         "span": [i, j],
                     }
                 )
@@ -102,13 +122,11 @@ def match_terms(text: str) -> list[dict]:
 
 
 def translate_input(text: str) -> dict | None:
-    """
-    If input contains ≥1 lexicon term → sealed op sy.lexicon.translate.
-    Pure English sealed forms are handled elsewhere; here only SY Hebrew hits.
-    """
+    """SY words present → sy.lexicon.translate. Else None."""
     matches = match_terms(text)
     if not matches:
         return None
+    # reject if the utterance is only punctuation/spaces aside from matches? allow mixed SY
     return {
         "id": "sy.lexicon.translate",
         "params": {
@@ -118,9 +136,7 @@ def translate_input(text: str) -> dict | None:
                     "from": m["from"],
                     "surface": m.get("surface") or m["from"],
                     "to": m["to"],
-                    "to_book": m.get("to_book"),
                     "kind": m["kind"],
-                    "verse_ref": m.get("verse_ref"),
                 }
                 for m in matches
             ],
@@ -131,44 +147,40 @@ def translate_input(text: str) -> dict | None:
 
 
 def execute_translate(params: dict) -> str:
-    """Plain computer language first (less mystical)."""
+    """Programming pipeline only — no mystic wording."""
     from . import bits64
 
     matches = params.get("matches") or []
     if not matches:
-        return "sy.lexicon.translate: empty"
-    # compact machine reading: input / output / process …
+        return "error: empty_sy_match"
     pipeline_words = [str(m.get("to") or "") for m in matches]
     lines = [
-        "computer language:",
-        "  " + " → ".join(pipeline_words),
+        "programming:",
+        "  " + " -> ".join(pipeline_words),
         "",
-        "map (Hebrew external → computer):",
+        "sy_word -> programming_term:",
     ]
     for m in matches:
         fr = m.get("from") or ""
         surf = m.get("surface") or fr
         limbs = bits64.hebrew_to_u64_limbs(fr)
         hx = bits64.u64_limbs_to_hex(limbs)[0]
-        extra = f"  (said: {surf})" if surf != fr else ""
-        lines.append(f"  {fr} = {m.get('to')}{extra}  [{m.get('id')}]  u64=0x{hx}")
+        extra = f" surface={surf}" if surf != fr else ""
+        lines.append(f"  {fr} = {m.get('to')}{extra}  id={m.get('id')}  u64=0x{hx}")
     lines.append("")
     lines.append(f"match_count={len(matches)}")
-    lines.append("internal=64-bit · external=Hebrew+spaces+punct · source=Book of Formations lexicon")
+    lines.append("speech=sy_words_only target=programming_terms_only internal=u64")
     return "\n".join(lines)
 
 
 def talk_forms() -> list[dict]:
     _load()
-    # sample teaching forms: each term is a valid utterance
-    samples = []
-    for e in (_LEX or {}).get("entries") or []:
-        samples.append(
-            {
-                "id": f"sy.{e['id']}",
-                "say": [e["from"], f"(with others) …{e['from']}…"],
-                "to": e["to"],
-                "kind": e.get("kind"),
-            }
-        )
-    return samples
+    return [
+        {
+            "id": f"sy.{e['id']}",
+            "say": [e["from"], "ו" + e["from"] if not e["from"].startswith("ו") else e["from"]],
+            "programming": e["to"],
+            "kind": e.get("kind"),
+        }
+        for e in (_LEX or {}).get("entries") or []
+    ]

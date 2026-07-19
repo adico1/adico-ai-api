@@ -242,25 +242,31 @@ TALK_FORMS: list[dict] = [
 def talk_protocol() -> dict:
     return {
         "multilingual": False,
+        "mysticism": False,
+        "speech": "sy_words_only",
+        "target": "programming_terms_only",
         "representation": bits64.law_public(),
-        "hebrew": {
-            "mode": "limited · 22-letter combinations (external)",
-            "source": "Sefer Yetzira / Book of Formations",
+        "sy": {
+            "mode": "SY lexicon words only (Book of Formations)",
             "advanced_repo": "/Users/adicohen/work/extension/advanced/SY",
             "lexicon": sy_lexicon.lexicon_meta(),
-            "rule": "Hebrew externally (lexicon terms) · 64-bit internally",
-            "example": "מים אש אויר",
-            "example_internal": bits64.dual_rep(external="מים אש אויר")["internal"],
-            "forms_sample": sy_lexicon.talk_forms()[:12],
-            "forms_all_count": len(sy_lexicon.talk_forms()),
+            "rule": "only SY words as speech · map to programming terms only · no mystic gloss",
+            "example": "מים אש ואויר",
+            "example_programming": "input -> output -> process",
+            "example_internal": bits64.dual_rep(external="מים אש ואויר")["internal"],
+            "forms": sy_lexicon.talk_forms(),
         },
-        "stage": "learn_sealed_speech",
+        "machine_ops_not_sy": {
+            "note": "optional dev/machine forms — not SY speech; not the HE human language",
+            "forms": TALK_FORMS,
+        },
+        "stage": "learn_sy_words",
         "rule": (
-            "Babylonian 64-bit internal · Hebrew 22 simplified external; "
-            "people learn limited SY Hebrew + tool forms"
+            "Support only SY words. "
+            "Fix every map to computers/programming terms. "
+            "Hebrew external · 64-bit internal."
         ),
-        "path_to_everything": "more ids + more SY terms from advanced book; users learn to talk them",
-        "forms_english_tools": TALK_FORMS,
+        "path_to_everything": "grow SY lexicon with programming targets only",
         "docs": "docs/TALK.md",
     }
 
