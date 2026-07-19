@@ -1,0 +1,6 @@
+# Optional engines for φ-build toward Wolfram-class coverage.
+# Core package stays stdlib-only without these.
+# Install: pip install -r requirements-math.txt
+sympy>=1.12
+numpy>=1.26
+scipy>=1.11

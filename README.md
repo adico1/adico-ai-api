@@ -125,13 +125,26 @@ data/            # local cache (gitignored contents)
 | `ADICO_UPSTREAM` | empty | optional local upstream for freeform |
 | `ADICO_ALLOW_NON_LOOPBACK` | `0` | must be `1` to bind non-loopback |
 
-## Math / functions
+## Math / functions (φ → Wolfram-class coverage)
 
-**Do not invent math.** Use built-in and 3rd-party; **clone/bind** into this package so every call complies with the unified core:
+**Do not invent math.** **Bind** engines. Grow in **φ steps**:
 
-`measure_first → install|cache → execute(bound provider) → cosmos address → ledger`
+| phase | engine |
+|---|---|
+| φ⁰ | stdlib `operator` / `math` / `decimal` |
+| φ¹ | **SymPy** (simplify, diff, integrate, solve, …) |
+| φ²–φ³ | NumPy / SciPy |
+| φⁿ | more binds + SY names |
 
-See **[docs/UNIFIED.md](docs/UNIFIED.md)**.
+```bash
+pip install -r requirements-math.txt
+```
+
+Every call still:
+
+`measure_first → install|cache → execute(bound) → SY full address → ledger`
+
+See **[docs/PHI_WOLFRAM.md](docs/PHI_WOLFRAM.md)** · **[docs/UNIFIED.md](docs/UNIFIED.md)**.
 
 ## Honesty
 

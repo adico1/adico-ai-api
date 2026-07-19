@@ -240,8 +240,10 @@ TALK_FORMS: list[dict] = [
 # Math: bind stdlib / optional 3rd party only — never invent algorithms
 import sys as _sys  # noqa: E402
 from . import math_ops as _math_ops  # noqa: E402
+from . import bind_cas as _bind_cas  # noqa: E402
 
 _math_ops.register_into(_sys.modules[__name__])
+_bind_cas.register_into(_sys.modules[__name__])  # φ¹ sympy · φ³ scipy when present
 
 
 def talk_protocol() -> dict:
@@ -253,8 +255,10 @@ def talk_protocol() -> dict:
         "math": {
             "invented": False,
             "rule": "use builtin/stdlib/3rd-party only; bind through unified core package",
-            "bindings": _math_ops.list_bindings(),
-            "docs": "docs/UNIFIED.md",
+            "bindings_stdlib": _math_ops.list_bindings(),
+            "cas": _bind_cas.provider_status(),
+            "docs": ["docs/UNIFIED.md", "docs/PHI_WOLFRAM.md"],
+            "phi": "φ⁰ stdlib · φ¹ sympy · φ² numpy · φ³ scipy · … → Wolfram-class coverage",
         },
         "unified_core": {
             "package": "adico_ai_api",
