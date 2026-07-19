@@ -92,7 +92,28 @@ sum(1, 2, 3)
 Address = Σ part.u64 (mod 2^64).  
 Parts = SY words · programming terms · explicit u64.
 
-Other machine ops (`hash`, arith, …) stay under `machine_ops_not_sy`.
+### More math (machine)
+
+```text
+add 2 3          → add(2, 3) = 5
+sub 10 4         → sub(10, 4) = 6
+mul 6 7          → mul(6, 7) = 42
+div 8 2          → div(8, 2) = 4
+mod 10 3         → mod(10, 3) = 1
+pow 2 8          → pow(2, 8) = 256
+```
+
+### system.ledger (on-demand id decider)
+
+Every sealed id:
+
+1. **measure_first** — cache hit? → reuse (no re-install / re-execute)  
+2. else **install** + **execute**  
+3. lines signed: `adico_measure_first` · `adico_on_demand_install` · `adico_on_demand_execute` · `adico_address_sum` · `adico_math`
+
+Ledger path default: `/Users/adicohen/Projects/system.ledger` (`ADICO_LEDGER_PATH`, `ADICO_LEDGER=0` to disable).
+
+Other machine ops (`hash`, arith expr, …) stay under `machine_ops_not_sy`.
 
 ## Wire
 

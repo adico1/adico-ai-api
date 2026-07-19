@@ -68,13 +68,15 @@ def _sum(params: dict) -> str:
       · request of an address that exists, or
       · tuning request to calculate the address
     Parts: SY words, programming terms, or explicit u64.
+    Signed to system.ledger (adico_address_sum).
     """
     from . import address as _addr
+    from . import ledger
 
     parts = params.get("parts") or []
     result = _addr.sum_address(parts)
-    # stash structured result for dual-out consumers
     params["_address_result"] = result
+    ledger.address_sum_event(result)
     return _addr.format_sum_result(result)
 
 
@@ -229,6 +231,11 @@ TALK_FORMS: list[dict] = [
         "params": "target op id",
     },
 ]
+
+# more math functions (add/sub/mul/div/mod/pow) — machine ops, ledger-signed
+from . import math_ops as _math_ops  # noqa: E402
+
+_math_ops.register_into(__import__(__name__))
 
 
 def talk_protocol() -> dict:

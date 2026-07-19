@@ -15,7 +15,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
-from . import bits64, cache, catalog, config
+from . import bits64, cache, catalog, config, ledger
 from . import PRODUCT_ID, PRODUCT_NAME, COMPANY, OWNER
 
 
@@ -62,14 +62,17 @@ def run_one(text: str) -> dict[str, Any]:
     op_id = translated["id"]
     params = translated["params"]
     qoq = translated["question_of_question"]
+    key_preview = cache.canonical_key(op_id, params)
 
-    # cache first — compute once
+    # ── on-demand id decider: MEASURE FIRST ──
     hit = cache.get(config.CACHE_PATH, op_id, params)
     if hit is not None:
+        ledger.measure_first(op_id, params, cache_hit=True, key=hit.get("key"))
         ata = dict(hit.get("answer_that_answers") or {})
         ata["source"] = "cache"
         ata["key"] = hit["key"]
         ata["reused"] = True
+        ata["decider"] = "measure_first → cache_hit (no re-install, no re-execute)"
         _attach_dual(ata, qoq, op_id, params)
         return {
             "ok": True,
@@ -82,26 +85,42 @@ def run_one(text: str) -> dict[str, Any]:
             "text": hit["answer"],
             "cache": "hit",
             "key": hit["key"],
+            "decider": "measure_first_cache_hit",
             "internal_op_u64_hex": ata["representation"]["internal"].get("op_u64_hex"),
         }
 
+    # ── measure: must install and execute ──
+    ledger.measure_first(op_id, params, cache_hit=False, key=key_preview)
     inst = catalog.install(op_id)
+    sig_i = ledger.install_event(op_id, inst)
     if not inst.get("installed"):
         return {
             "ok": False,
             "sealed": True,
             "id": op_id,
             "answer": None,
-            "answer_that_answers": {"status": "install_failed", "install": inst},
+            "answer_that_answers": {
+                "status": "install_failed",
+                "install": inst,
+                "decider": "measure_first → install_failed",
+                "ledger_install_sig": sig_i,
+            },
             "text": f"op id={op_id} not installed",
         }
 
     answer = catalog.execute(op_id, params)
-    key = cache.canonical_key(op_id, params)
+    key = key_preview
+    extra = {}
+    if op_id == "op.address.sum" and isinstance(params.get("_address_result"), dict):
+        extra["address"] = {
+            "mode": params["_address_result"].get("mode"),
+            "address_hex": params["_address_result"].get("address_hex"),
+        }
+    sig_e = ledger.execute_event(op_id, key, len(answer or ""), extra=extra or None)
     ata = {
         "status": "executed",
         "id": op_id,
-        "params": params,
+        "params": {k: v for k, v in params.items() if not str(k).startswith("_")},
         "question_of_question": qoq,
         "install": inst,
         "source": "execute",
@@ -110,7 +129,9 @@ def run_one(text: str) -> dict[str, Any]:
         "owner": OWNER,
         "company": COMPANY,
         "product": PRODUCT_ID,
-        "law": "compute_once · re-ask returns this op · Hebrew external · 64-bit internal",
+        "decider": "measure_first → install → execute",
+        "ledger": {"install_sig": sig_i, "execute_sig": sig_e},
+        "law": "compute_once · ledger on-demand · re-ask = measure cache hit",
     }
     _attach_dual(ata, qoq, op_id, params)
     rec = cache.put(config.CACHE_PATH, op_id, params, answer, ata)
@@ -118,13 +139,14 @@ def run_one(text: str) -> dict[str, Any]:
         "ok": True,
         "sealed": True,
         "id": op_id,
-        "params": params,
+        "params": ata["params"],
         "question_of_question": qoq,
         "answer": answer,
         "answer_that_answers": ata,
         "text": answer,
         "cache": "miss",
         "key": rec["key"],
+        "decider": "install_and_execute",
         "internal_op_u64_hex": ata["representation"]["internal"].get("op_u64_hex"),
     }
 

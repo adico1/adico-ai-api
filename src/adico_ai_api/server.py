@@ -115,6 +115,8 @@ class H(BaseHTTPRequestHandler):
                         "target": "programming_terms_only",
                         "internal": "64-bit",
                         "talk": "GET /v1/talk — SY words only",
+                        "decider": "measure_first | install_and_execute → system.ledger",
+                        "math": ["sum(address)", "add", "sub", "mul", "div", "mod", "pow"],
                         "industry_today": "practically nothing complete",
                         "potential": "everything in parallel",
                     },
