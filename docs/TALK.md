@@ -73,7 +73,26 @@ Live list: `GET /v1/talk` → `sy.lexicon`.
 - Mystic / religious explanation as the answer  
 - English prose as the HE language  
 
-Optional **machine ops** (`sum`, `hash`, arith, …) are **not SY speech** — they are separate dev tools (`machine_ops_not_sy` in `/v1/talk`).
+## Machine op: `sum` = address
+
+Not SY speech. Not mystic. **Address op:**
+
+| mode | meaning |
+|---|---|
+| `request_existing` | address already registered — return it |
+| `tune_calculate` | calculate address from parts, register it |
+
+```text
+sum מים אש אויר
+sum input output process
+sum 0x10a5b 0x14
+sum(1, 2, 3)
+```
+
+Address = Σ part.u64 (mod 2^64).  
+Parts = SY words · programming terms · explicit u64.
+
+Other machine ops (`hash`, arith, …) stay under `machine_ops_not_sy`.
 
 ## Wire
 
