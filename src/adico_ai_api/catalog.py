@@ -118,12 +118,14 @@ def _install_mark(params: dict) -> str:
 # --- routes: sealed speech → id ---
 # NOT multi-lingual. One talk surface: forms below. People learn these to request work.
 # sum = address request | address calculate (tune)
-# machine keyword `sum` — parts may be SY words / programming terms / u64
+# machine: sum · SY sealed speech: סכום (T31 → address_sum)
 _reg(
     "op.address.sum",
     [
         r"^sum\s*\(\s*(.+)\s*\)\s*$",
         r"^sum\s+(.+)\s*$",
+        r"^סכום\s*\(\s*(.+)\s*\)\s*$",
+        r"^סכום\s+(.+)\s*$",
     ],
     lambda m: _parse_sum_payload(m.group(1)),
     _sum,
@@ -182,13 +184,16 @@ TALK_FORMS: list[dict] = [
     {
         "id": "op.address.sum",
         "say": [
+            "סכום מים אש אויר",
+            "סכום input output",
             "sum מים אש אויר",
-            "sum input output process",
-            "sum 0x1782 0x14",
             "sum(1, 2, 3)",
         ],
+        "sy_word": "סכום",
+        "sy_id": "T31",
+        "programming": "address_sum",
         "params": "SY words | programming terms | u64 hex/int",
-        "computer": "sum(parts.u64) → address; existing=request | new=tune_calculate",
+        "computer": "address_sum(parts.u64) → cosmos address; existing=request | new=tune",
     },
     {
         "id": "op.arith",

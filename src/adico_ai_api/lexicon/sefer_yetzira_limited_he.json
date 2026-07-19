@@ -31,6 +31,8 @@
     {"id": "T22", "from": "ראה", "to": "parse", "kind": "op"},
     {"id": "T23", "from": "צר", "to": "reduce", "kind": "op"},
     {"id": "T24", "from": "שוכנים", "to": "runtime_agents", "kind": "runtime"},
-    {"id": "T26", "from": "7 עדים", "to": "witness_set", "kind": "runtime"}
+    {"id": "T26", "from": "7 עדים", "to": "witness_set", "kind": "runtime"},
+    {"id": "T31", "from": "סכום", "to": "address_sum", "kind": "op"}
   ]
 }
+

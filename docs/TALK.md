@@ -62,8 +62,22 @@ sy_word -> programming_term:
 | צר | reduce |
 | שוכנים | runtime_agents |
 | 7 עדים | witness_set |
+| **סכום** | **address_sum** |
 
 `ו` prefix = and (e.g. `ואויר` → process).
+
+### סכום (T31) = address_sum
+
+Sealed SY speech for the sum/address function:
+
+```text
+סכום מים אש אויר
+סכום 1 2 3
+סכום input output
+```
+
+→ `op.address.sum` · programming term `address_sum`  
+→ cosmos thing / about / about² · Hebrew answer
 
 Live list: `GET /v1/talk` → `sy.lexicon`.
 
@@ -83,14 +97,15 @@ Not SY speech. Not mystic. **Address op:**
 | `tune_calculate` | calculate address from parts, register it |
 
 ```text
+סכום מים אש אויר
+סכום 1 2 3
 sum מים אש אויר
-sum input output process
-sum 0x10a5b 0x14
 sum(1, 2, 3)
 ```
 
 Address = Σ part.u64 (mod 2^64).  
-Parts = SY words · programming terms · explicit u64.
+Parts = SY words · programming terms · explicit u64.  
+SY word **סכום** (T31) → programming **address_sum**.
 
 ### More math (machine)
 
