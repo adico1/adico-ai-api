@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: adico-ai-api
+  version: 0.1.0
+  description: |
+    Industry-shaped AI API. Local data. Network life (multi-dev multi-user).
+    Deterministic: id → install → execute → (answer, answer_that_answers) → cache once.
+  contact:
+    name: adico / כהן עובדיה עדי
+servers:
+  - url: http://127.0.0.1:8843
+    description: local loopback default
+paths:
+  /health:
+    get:
+      summary: Health and product law
+      responses:
+        "200":
+          description: OK
+  /v1/models:
+    get:
+      summary: OpenAI models list
+      responses:
+        "200":
+          description: OK
+  /v1/chat/completions:
+    post:
+      summary: OpenAI chat completions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                messages:
+                  type: array
+                  items:
+                    type: object
+                texts:
+                  type: array
+                  items:
+                    type: string
+                  description: optional parallel batch
+                adico_parallel:
+                  type: boolean
+      responses:
+        "200":
+          description: completion + adico dual out
+  /v1/messages:
+    post:
+      summary: Anthropic-shaped messages
+      responses:
+        "200":
+          description: OK
+  /api/chat:
+    post:
+      summary: Ollama chat
+      responses:
+        "200":
+          description: OK
+  /api/generate:
+    post:
+      summary: Ollama generate
+      responses:
+        "200":
+          description: OK
+  /api/tags:
+    get:
+      summary: Ollama tags
+      responses:
+        "200":
+          description: OK
+  /v1/ops/batch:
+    post:
+      summary: Parallel sealed ops
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [texts]
+              properties:
+                texts:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: results[]

@@ -1,0 +1,2 @@
+# stdlib-only server. No required third-party packages.
+# Optional later: uvicorn, fastapi — not required for v0.1
