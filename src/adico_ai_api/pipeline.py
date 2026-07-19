@@ -15,8 +15,22 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
-from . import cache, catalog, config
+from . import bits64, cache, catalog, config
 from . import PRODUCT_ID, PRODUCT_NAME, COMPANY, OWNER
+
+
+def _attach_dual(ata: dict, text: str, op_id: str, params: dict) -> dict:
+    """Hebrew external · 64-bit internal on every sealed result."""
+    matches = None
+    if op_id == "sy.lexicon.translate" and isinstance(params, dict):
+        matches = params.get("matches")
+    ata["representation"] = bits64.dual_rep(
+        external=text,
+        op_id=op_id,
+        params=params,
+        matches=matches,
+    )
+    return ata
 
 
 def run_one(text: str) -> dict[str, Any]:
@@ -36,12 +50,12 @@ def run_one(text: str) -> dict[str, Any]:
                 "reason": "input did not translate to a catalog id — no invention",
                 "owner": OWNER,
                 "product": PRODUCT_ID,
+                "representation": bits64.dual_rep(external=text or ""),
             },
             "text": (
                 f"{PRODUCT_NAME}: no sealed id — not multi-lingual. "
-                "Speak English tool form or limited Sefer Yetzira Hebrew (Book of Formations). "
-                "Learn: GET /v1/talk · docs/TALK.md. "
-                "Everything grows by more book terms + ops."
+                "External: limited SY Hebrew (22-letter combinations) or tool forms. "
+                "Internal: 64-bit. Learn: GET /v1/talk · docs/TALK.md."
             ),
         }
 
@@ -56,6 +70,7 @@ def run_one(text: str) -> dict[str, Any]:
         ata["source"] = "cache"
         ata["key"] = hit["key"]
         ata["reused"] = True
+        _attach_dual(ata, qoq, op_id, params)
         return {
             "ok": True,
             "sealed": True,
@@ -67,6 +82,7 @@ def run_one(text: str) -> dict[str, Any]:
             "text": hit["answer"],
             "cache": "hit",
             "key": hit["key"],
+            "internal_op_u64_hex": ata["representation"]["internal"].get("op_u64_hex"),
         }
 
     inst = catalog.install(op_id)
@@ -94,8 +110,9 @@ def run_one(text: str) -> dict[str, Any]:
         "owner": OWNER,
         "company": COMPANY,
         "product": PRODUCT_ID,
-        "law": "compute_once · re-ask returns this op",
+        "law": "compute_once · re-ask returns this op · Hebrew external · 64-bit internal",
     }
+    _attach_dual(ata, qoq, op_id, params)
     rec = cache.put(config.CACHE_PATH, op_id, params, answer, ata)
     return {
         "ok": True,
@@ -108,6 +125,7 @@ def run_one(text: str) -> dict[str, Any]:
         "text": answer,
         "cache": "miss",
         "key": rec["key"],
+        "internal_op_u64_hex": ata["representation"]["internal"].get("op_u64_hex"),
     }
 
 

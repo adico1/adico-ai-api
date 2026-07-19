@@ -38,6 +38,8 @@ See **[docs/TALK.md](docs/TALK.md)**. Advanced book tree: `~/work/extension/adva
 | Deterministic | speech form → **id** → **install** → **execute(params)** → **(answer, answer_that_answers)** |
 | Waste | talk little (form only), do much · **compute once** · re-ask → **one op answer** |
 | Multi-lingual | **no** — English tool forms + **limited SY Hebrew** only |
+| Representation | **Hebrew external** (22-letter combinations) · **64-bit internal** |
+| History law | Babylonians spoke 64-bit · Hebrew simplified to 22-letter combinations |
 | Data | **local** per user machine |
 | Life | **network**: protocol, catalog of ids, multi-dev, multi-user |
 

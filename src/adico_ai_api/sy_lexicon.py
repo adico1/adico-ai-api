@@ -121,14 +121,24 @@ def translate_input(text: str) -> dict | None:
 
 
 def execute_translate(params: dict) -> str:
+    from . import bits64
+
     matches = params.get("matches") or []
     if not matches:
         return "sy.lexicon.translate: empty"
-    lines = ["Book of Formations · limited Hebrew → computer language:"]
+    lines = [
+        "Book of Formations · external Hebrew (22) → computer language",
+        "internal = 64-bit (Babylonian machine face)",
+    ]
     for m in matches:
-        lines.append(f"  · {m.get('from')} → {m.get('to')}  [{m.get('id')}|{m.get('kind')}]")
+        fr = m.get("from") or ""
+        limbs = bits64.hebrew_to_u64_limbs(fr)
+        hx = bits64.u64_limbs_to_hex(limbs)[0]
+        lines.append(
+            f"  · {fr} → {m.get('to')}  [{m.get('id')}|{m.get('kind')}]  u64=0x{hx}"
+        )
     lines.append(f"match_count={len(matches)}")
-    lines.append("source=sefer_yetzira_limited_he · not multi-lingual free speech")
+    lines.append("source=sefer_yetzira_limited_he · Hebrew external · 64-bit internal")
     return "\n".join(lines)
 
 

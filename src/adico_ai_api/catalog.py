@@ -15,7 +15,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
-from . import config
+from . import bits64, config
 from . import sy_lexicon
 
 # op_id → handler(params) -> str answer
@@ -190,20 +190,22 @@ TALK_FORMS: list[dict] = [
 def talk_protocol() -> dict:
     return {
         "multilingual": False,
+        "representation": bits64.law_public(),
         "hebrew": {
-            "mode": "limited",
+            "mode": "limited · 22-letter combinations (external)",
             "source": "Sefer Yetzira / Book of Formations",
             "advanced_repo": "/Users/adicohen/work/extension/advanced/SY",
             "lexicon": sy_lexicon.lexicon_meta(),
-            "rule": "only terms in the SY lexicon — not free Hebrew, not multi-lingual",
+            "rule": "Hebrew externally (lexicon terms) · 64-bit internally",
             "example": "מים אש אויר",
+            "example_internal": bits64.dual_rep(external="מים אש אויר")["internal"],
             "forms_sample": sy_lexicon.talk_forms()[:12],
             "forms_all_count": len(sy_lexicon.talk_forms()),
         },
         "stage": "learn_sealed_speech",
         "rule": (
-            "people must learn forms to request work; "
-            "English tool forms + limited SY Hebrew only"
+            "Babylonian 64-bit internal · Hebrew 22 simplified external; "
+            "people learn limited SY Hebrew + tool forms"
         ),
         "path_to_everything": "more ids + more SY terms from advanced book; users learn to talk them",
         "forms_english_tools": TALK_FORMS,

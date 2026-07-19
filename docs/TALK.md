@@ -3,6 +3,21 @@
 **Not multi-lingual.**  
 Speech is **learned sealed forms** → **ids**. Free chat is not the product.
 
+### Representation law
+
+| face | medium |
+|---|---|
+| **External** | Hebrew — 22-letter combinations (Sefer Yetzira simplification) |
+| **Internal** | **64-bit** words (Babylonian machine face) |
+
+Babylonians spoke 64-bit. Hebrew simplified that to 22 letters.  
+**We use Hebrew externally and 64-bit internally.**
+
+Every sealed answer carries `answer_that_answers.representation`:
+- `external.hebrew_stream_22`
+- `internal.u64_limbs` / `op_u64_hex`
+- per-term dual for SY matches
+
 ### Hebrew (limited only)
 
 Hebrew is **not** free modern Hebrew.  
