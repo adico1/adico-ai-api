@@ -55,7 +55,10 @@ def lexicon_meta() -> dict[str, Any]:
 
 
 def match_terms(text: str) -> list[dict]:
-    """Find lexicon terms inside text (limited Hebrew only)."""
+    """Find lexicon terms inside text (limited Hebrew only).
+
+    Also matches Hebrew conjunction prefix ו (and), e.g. ואויר → אויר.
+    """
     _load()
     t = text or ""
     if not t.strip():
@@ -66,29 +69,34 @@ def match_terms(text: str) -> list[dict]:
         term = e.get("from") or ""
         if not term:
             continue
-        start = 0
-        while True:
-            i = t.find(term, start)
-            if i < 0:
-                break
-            j = i + len(term)
-            # skip overlapping spans
-            if any(not (j <= a or i >= b) for a, b in used_spans):
-                start = i + 1
-                continue
-            used_spans.append((i, j))
-            matches.append(
-                {
-                    "id": e["id"],
-                    "from": term,
-                    "to": e.get("to"),
-                    "kind": e.get("kind"),
-                    "verse_ref": e.get("verse_ref"),
-                    "span": [i, j],
-                }
-            )
-            start = j
-    # stable order by appearance in text
+        # surface forms: bare term + optional ו- prefix (and)
+        forms = [term]
+        if not term.startswith("ו"):
+            forms.append("ו" + term)
+        for form in forms:
+            start = 0
+            while True:
+                i = t.find(form, start)
+                if i < 0:
+                    break
+                j = i + len(form)
+                if any(not (j <= a or i >= b) for a, b in used_spans):
+                    start = i + 1
+                    continue
+                used_spans.append((i, j))
+                matches.append(
+                    {
+                        "id": e["id"],
+                        "from": term,
+                        "surface": form,
+                        "to": e.get("to"),
+                        "to_book": e.get("to_book"),
+                        "kind": e.get("kind"),
+                        "verse_ref": e.get("verse_ref"),
+                        "span": [i, j],
+                    }
+                )
+                start = j
     matches.sort(key=lambda m: m["span"][0])
     return matches
 
@@ -108,7 +116,9 @@ def translate_input(text: str) -> dict | None:
                 {
                     "id": m["id"],
                     "from": m["from"],
+                    "surface": m.get("surface") or m["from"],
                     "to": m["to"],
+                    "to_book": m.get("to_book"),
                     "kind": m["kind"],
                     "verse_ref": m.get("verse_ref"),
                 }
@@ -121,24 +131,30 @@ def translate_input(text: str) -> dict | None:
 
 
 def execute_translate(params: dict) -> str:
+    """Plain computer language first (less mystical)."""
     from . import bits64
 
     matches = params.get("matches") or []
     if not matches:
         return "sy.lexicon.translate: empty"
+    # compact machine reading: input / output / process …
+    pipeline_words = [str(m.get("to") or "") for m in matches]
     lines = [
-        "Book of Formations · external Hebrew (22) → computer language",
-        "internal = 64-bit (Babylonian machine face)",
+        "computer language:",
+        "  " + " → ".join(pipeline_words),
+        "",
+        "map (Hebrew external → computer):",
     ]
     for m in matches:
         fr = m.get("from") or ""
+        surf = m.get("surface") or fr
         limbs = bits64.hebrew_to_u64_limbs(fr)
         hx = bits64.u64_limbs_to_hex(limbs)[0]
-        lines.append(
-            f"  · {fr} → {m.get('to')}  [{m.get('id')}|{m.get('kind')}]  u64=0x{hx}"
-        )
+        extra = f"  (said: {surf})" if surf != fr else ""
+        lines.append(f"  {fr} = {m.get('to')}{extra}  [{m.get('id')}]  u64=0x{hx}")
+    lines.append("")
     lines.append(f"match_count={len(matches)}")
-    lines.append("source=sefer_yetzira_limited_he · Hebrew external · 64-bit internal")
+    lines.append("internal=64-bit · external=Hebrew+spaces+punct · source=Book of Formations lexicon")
     return "\n".join(lines)
 
 

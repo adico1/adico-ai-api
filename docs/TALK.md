@@ -36,13 +36,23 @@ It is **limited Hebrew from Sefer Yetzira (Book of Formations)** — the lexicon
 - advanced tree (owner): `/Users/adicohen/work/extension/advanced/SY`  
 - shipped lexicon: `src/adico_ai_api/lexicon/sefer_yetzira_limited_he.json` (30 sealed terms)
 
-Example that works:
+Examples that work (plain computer language, less mystical):
 
 ```text
 מים אש אויר
+מים אש ואויר
 ```
 
-→ `sy.lexicon.translate` → each term to its computer-language `to` (input / output / process…)
+→
+```text
+computer language:
+  input → output → process
+
+map:
+  מים = input
+  אש = output
+  אויר = process   (ואויר also matches — Hebrew "and")
+```
 
 Unknown Hebrew words (not in the book lexicon) → **no id** (honest miss).
 

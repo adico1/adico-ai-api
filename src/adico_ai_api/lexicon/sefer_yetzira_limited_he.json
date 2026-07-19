@@ -4,217 +4,248 @@
   "source_advanced": "/Users/adicohen/work/extension/advanced/SY",
   "source_dict": "/Users/adicohen/Projects/יבש/sefer_yetzira_dictionary_from_logs.spec.json",
   "owner": "adi",
-  "rule": "limited Hebrew only — terms from this lexicon; not multi-lingual free speech",
+  "rule": "limited Hebrew (Book of Formations) → plain computer language; not multi-lingual free speech; ו-prefix allowed (e.g. ואויר)",
   "entries": [
     {
       "id": "T01",
       "from": "מים",
-      "to": "קלט (input)",
+      "to": "input",
       "kind": "substrate",
-      "verse_ref": "פרק א משנה י-יא"
+      "verse_ref": "פרק א משנה י-יא",
+      "to_book": "קלט (input)"
     },
     {
       "id": "T02",
       "from": "אש",
-      "to": "פלט (output)",
+      "to": "output",
       "kind": "substrate",
-      "verse_ref": "פרק א משנה יב"
+      "verse_ref": "פרק א משנה יב",
+      "to_book": "פלט (output)"
     },
     {
       "id": "T03",
       "from": "אויר",
-      "to": "תהליך ללא סימן",
+      "to": "process",
       "kind": "substrate",
-      "verse_ref": "פרק ג משנה ב"
+      "verse_ref": "פרק ג משנה ב",
+      "to_book": "תהליך ללא סימן"
     },
     {
       "id": "T04",
       "from": "יוצר",
-      "to": "סימן תהליך בלי סימן",
+      "to": "process_marker",
       "kind": "actor",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "סימן תהליך בלי סימן"
     },
     {
       "id": "T05",
       "from": "למכונו",
-      "to": "לסימנו",
+      "to": "to_its_symbol",
       "kind": "phrase",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "לסימנו"
     },
     {
       "id": "T06",
       "from": "אות בשם",
-      "to": "סימן סימנו של בקר מכוון שם",
+      "to": "named_control_symbol",
       "kind": "letter",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "סימן סימנו של בקר מכוון שם"
     },
     {
       "id": "T07",
       "from": "ממיר_אינם_לישנם",
-      "to": "תהליך השלמה שיוצר או מתקן את ברא",
+      "to": "complete_or_repair",
       "kind": "verb",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "תהליך השלמה שיוצר או מתקן את ברא"
     },
     {
       "id": "T08",
       "from": "1 ראשית",
-      "to": "לולאה, לא קו",
+      "to": "loop_not_line",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "לולאה, לא קו"
     },
     {
       "id": "T09",
       "from": "2 אחרית",
-      "to": "רוב הסופים פתוחים",
+      "to": "open_ends",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "רוב הסופים פתוחים"
     },
     {
       "id": "T10",
       "from": "3 טוב",
-      "to": "סגירה (לא הרשאה)",
+      "to": "close",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "סגירה (לא הרשאה)"
     },
     {
       "id": "T11",
       "from": "4 רע",
-      "to": "מבנה (לא מקרה)",
+      "to": "structure",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "מבנה (לא מקרה)"
     },
     {
       "id": "T12",
       "from": "5 רום",
-      "to": "epistemics (הברא העליון, לא power)",
+      "to": "upper_spec",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "epistemics (הברא העליון, לא power)"
     },
     {
       "id": "T13",
       "from": "6 תחת",
-      "to": "החומר — המקום שעליו המפרט נח",
+      "to": "matter_base",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "החומר — המקום שעליו המפרט נח"
     },
     {
       "id": "T14",
       "from": "7 מזרח",
-      "to": "קדם בערוץ, לא בזמן",
+      "to": "channel_front",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "קדם בערוץ, לא בזמן"
     },
     {
       "id": "T15",
       "from": "8 מערב",
-      "to": "ההיסטוריה הד יחיד / single history",
+      "to": "single_history",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "ההיסטוריה הד יחיד / single history"
     },
     {
       "id": "T16",
       "from": "9 צפון",
-      "to": "בלי עד_קובץ — אין קיבוע",
+      "to": "no_file_witness",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "בלי עד_קובץ — אין קיבוע"
     },
     {
       "id": "T17",
       "from": "10 דרום",
-      "to": "4 חושים מספיקים / החום, ההיתר, מי מורשה לפעול",
+      "to": "authorization_heat",
       "kind": "depth_omek",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "4 חושים מספיקים / החום, ההיתר, מי מורשה לפעול"
     },
     {
       "id": "T18",
       "from": "עומק מערב",
-      "to": "אחור, היסטוריה, מה שכבר הוחלט",
-      "kind": "depth_phrase",
-      "verse_ref": null
+      "to": "history_back",
+      "kind": "depth_omek",
+      "verse_ref": null,
+      "to_book": "אחור, היסטוריה, מה שכבר הוחלט"
     },
     {
       "id": "T19",
       "from": "עומק אחרית",
-      "to": "סוף, סגירה, outbox, sealed records",
-      "kind": "depth_phrase",
-      "verse_ref": null
+      "to": "sealed_outbox",
+      "kind": "depth_omek",
+      "verse_ref": null,
+      "to_book": "סוף, סגירה, outbox, sealed records"
     },
     {
       "id": "T20",
       "from": "צפה",
-      "to": "קשר ממליך בין חלקים",
+      "to": "link_parts",
       "kind": "verb",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "קשר ממליך בין חלקים"
     },
     {
       "id": "T21",
       "from": "הבט",
-      "to": "קלט גולמי",
+      "to": "raw_input",
       "kind": "verb",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "קלט גולמי"
     },
     {
       "id": "T22",
       "from": "ראה",
-      "to": "הופעת הבחנות בתוך הקלט / שכבות מסומנות",
+      "to": "parse_layers",
       "kind": "verb",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "הופעת הבחנות בתוך הקלט / שכבות מסומנות"
     },
     {
       "id": "T23",
       "from": "צר",
-      "to": "summarize / סיכום סוף ה-10",
+      "to": "summarize",
       "kind": "verb",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "summarize / סיכום סוף ה-10"
     },
     {
       "id": "T24",
       "from": "שוכנים",
-      "to": "גורמים שפועלים בתוך הקלט (DOM atoms)",
-      "kind": "entity",
-      "verse_ref": null
+      "to": "agents_in_input",
+      "kind": "noun",
+      "verse_ref": null,
+      "to_book": "גורמים שפועלים בתוך הקלט (DOM atoms)"
     },
     {
       "id": "T25",
       "from": "fully_attested",
-      "to": "7/7 עדים נחתמו (false = ≤6/7)",
-      "kind": "state",
-      "verse_ref": null
+      "to": "fully_attested",
+      "kind": "flag",
+      "verse_ref": null,
+      "to_book": "7/7 עדים נחתמו (false = ≤6/7)"
     },
     {
       "id": "T26",
       "from": "7 עדים",
-      "to": "עד_קובץ, עד_תהליך, עד_לוג, עד_API, עד_בקשת_משתמש, עד_זמן, עד_תוצאה",
-      "kind": "structure",
-      "verse_ref": null
+      "to": "seven_witnesses",
+      "kind": "set",
+      "verse_ref": null,
+      "to_book": "עד_קובץ, עד_תהליך, עד_לוג, עד_API, עד_בקשת_משתמש, עד_זמן, עד_תוצאה"
     },
     {
       "id": "T27",
       "from": "ב\"ה (פרק ו)",
-      "to": "ע\"ה (טעות בלוג, אדי תיקן)",
-      "kind": "correction",
-      "verse_ref": null
+      "to": "chapter_marker",
+      "kind": "note",
+      "verse_ref": null,
+      "to_book": "ע\"ה (טעות בלוג, אדי תיקן)"
     },
     {
       "id": "T28",
       "from": "intent=ראה",
-      "to": "appearance of distinctions in input",
+      "to": "intent_see",
       "kind": "intent",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "appearance of distinctions in input"
     },
     {
       "id": "T29",
       "from": "intent=הביט",
-      "to": "observation downward, toward matter",
+      "to": "intent_look_down",
       "kind": "intent",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "observation downward, toward matter"
     },
     {
       "id": "T30",
       "from": "intent=צפה",
-      "to": "recommending connection between parts",
+      "to": "intent_link",
       "kind": "intent",
-      "verse_ref": null
+      "verse_ref": null,
+      "to_book": "recommending connection between parts"
     }
-  ]
+  ],
+  "computer_first": true
 }
