@@ -124,13 +124,23 @@ def list_bindings() -> list[dict[str, Any]]:
     out = []
     for source, table in _PROVIDERS:
         for name, fn in table.items():
+            mod = getattr(fn, "__module__", None) or type(fn).__module__
+            nm = getattr(fn, "__name__", None) or type(fn).__name__
             out.append(
                 {
                     "name": name,
                     "source": source,
-                    "arity": "binary" if name in _BIN_NAMES or name.startswith("np_") and name != "np_sqrt" and name != "np_sum" else "unary_or_var",
+                    "arity": (
+                        "binary"
+                        if name in _BIN_NAMES
+                        or (
+                            name.startswith("np_")
+                            and name not in ("np_sqrt", "np_sum")
+                        )
+                        else "unary_or_var"
+                    ),
                     "invented": False,
-                    "callable": f"{fn.__module__}.{getattr(fn, '__name__', type(fn).__name__)}",
+                    "callable": f"{mod}.{nm}",
                 }
             )
     return out
