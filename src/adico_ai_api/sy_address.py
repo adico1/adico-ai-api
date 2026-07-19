@@ -186,42 +186,84 @@ def about_seal(parent_u64: int, parent_he: str, netiv: int) -> dict[str, Any]:
     }
 
 
+def _context_letter_idxs(*parts: str) -> list[int]:
+    """Map context tags into letter indices (builtin ord only — no invented math)."""
+    out: list[int] = []
+    for p in parts:
+        if not p:
+            continue
+        for i, ch in enumerate(p):
+            li = letter_index(ch)
+            if li is not None:
+                out.append(li)
+            else:
+                out.append((ord(ch) + i) % N_LETTERS)
+    return out
+
+
 def build_sy_address(
     *,
     raw_input: str,
     op_id: str,
     params: dict,
     user: str | None,
+    domain: str | None = None,
 ) -> dict[str, Any]:
     """
-    Full SY address for a request under unified language.
-    Material: input letters (+ op_id/user mapped only via Hebrew letters present).
+    Full SY address under unified language.
+
+    Humans may speak SHORT language (ambiguous across domains).
+    System always uses FULL address:
+      short_speech + user + domain + op + seal chain.
+
+    Same short words + different domain (mathematics vs physics)
+    ⇒ different full addresses (different things).
     """
-    # primary letter stream from human/SY input
-    salt_he = bits64.normalize_hebrew((user or "") + (op_id or ""))
-    idxs = letters_from_text(raw_input)
+    short_speech = (raw_input or "").strip()
+    domain = (domain or "").strip() or None
+    user = (user or "").strip() or None
+
+    idxs_short = letters_from_text(short_speech)
+    idxs_ctx = _context_letter_idxs(domain or "", user or "", op_id or "")
+    idxs = list(idxs_short) + idxs_ctx
+
     if not idxs:
-        # machine ops with no Hebrew: derive letters from op_id digits/hex not Latin —
-        # use fixed empty path material from params digest via letter indices of length only
-        # Prefer: take any SY words inside op_id path — else use netiv-only seal from param sizes
-        idxs = []
         blob = json.dumps(params or {}, ensure_ascii=False, sort_keys=True, default=str)
-        # map each char that is Hebrew; else use length-mod letters (not SHA)
         for ch in blob:
-            li = letter_index(ch) if ch in OTIYOT_22 or ch in "ךםןףץ" else None
+            li = letter_index(ch)
             if li is not None:
                 idxs.append(li)
         if not idxs:
-            n = (len(blob) + len(op_id or "") + len(user or "")) % N_LETTERS
+            n = (
+                len(blob) + len(op_id or "") + len(user or "") + len(domain or "")
+            ) % N_LETTERS
             idxs = [n, (n * 3 + 1) % N_LETTERS, (n * 5 + 2) % N_LETTERS]
 
     gates = gates_from_letters(idxs)
-    netiv = netiv_from_seal(idxs, gates, salt=salt_he + bits64.normalize_hebrew(raw_input))
+    salt = bits64.normalize_hebrew(short_speech) + "".join(
+        OTIYOT_22[i % N_LETTERS] for i in idxs_ctx[:16]
+    )
+    netiv = netiv_from_seal(idxs, gates, salt=salt)
     u64 = pack_seal_u64(netiv, idxs, gates)
     he = seal_hebrew(netiv, idxs, gates)
 
     about = about_seal(u64, he, netiv)
     about2 = about_seal(about["u64"], about["hebrew"], about["netiv"])
+
+    full_address = {
+        "short_speech": short_speech,
+        "user": user or "anonymous_local",
+        "domain": domain or "unspecified",
+        "op_id": op_id,
+        "netiv": netiv,
+        "gates": gates,
+        "thing_hex": f"{u64:016x}",
+        "thing_hebrew": he,
+        "about_hex": about["hex"],
+        "about_hebrew": about["hebrew"],
+        "about2_hex": about2["hex"],
+        "about2_hebrew": about2["hebrew"],
+    }
 
     return {
         "scheme": "sy_32_paths_22_letters_231_gates",
@@ -229,6 +271,17 @@ def build_sy_address(
             "netivot": N_NETIVOT,
             "otiyot": N_LETTERS,
             "gates": N_GATES,
+        },
+        "short_speech": short_speech,
+        "full_address": full_address,
+        "context": {
+            "user": user or "anonymous_local",
+            "domain": domain or "unspecified",
+            "op_id": op_id,
+            "note": (
+                "humans may share short speech; system always uses full_address "
+                "so mathematician vs physicist can mean different things"
+            ),
         },
         "thing": {
             "netiv": netiv,
@@ -239,6 +292,7 @@ def build_sy_address(
             "address_hex": f"{u64:016x}",
             "hebrew": he,
             "role": "sy_seal_of_the_thing",
+            "name": he,
         },
         "about_thing": {
             "netiv": about["netiv"],
@@ -259,10 +313,10 @@ def build_sy_address(
             "role": "sy_seal_about_seal_about_seal",
         },
         "law": (
-            "unique name of a thing = its cosmic address; "
-            "22+231+32 = naming engine; "
-            "language evolves → new names → new addresses → infinite infinite infinity; "
-            "not SHA lottery"
+            "unique name = cosmic address; "
+            "short human speech may collide across domains; "
+            "system always talks in full_address (user+domain+op+seal chain); "
+            "22+231+32 naming engine; language evolves → infinite names"
         ),
         "name": he,
         "name_is_address": True,

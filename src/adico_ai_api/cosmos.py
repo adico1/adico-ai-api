@@ -76,18 +76,21 @@ def resolve_request(
     params: dict,
     raw_input: str,
     machine_answer: str,
+    domain: str | None = None,
 ) -> dict[str, Any]:
-    """SY seal cycle for one function call."""
+    """SY seal cycle: short human speech → full system address."""
     sy = sy_address.build_sy_address(
         raw_input=raw_input,
         op_id=op_id,
         params=params or {},
         user=user,
+        domain=domain,
     )
     thing = sy["thing"]
     about = sy["about_thing"]
     about2 = sy["about_about"]
     content_hex = thing["address_hex"]
+    fa = sy.get("full_address") or {}
 
     with _lock:
         _load()
@@ -109,8 +112,10 @@ def resolve_request(
                 "about_hex": about["address_hex"],
                 "about2_hex": about2["address_hex"],
                 "user": user or "anonymous_local",
+                "domain": domain or "unspecified",
                 "op_id": op_id,
-                "input": raw_input,
+                "short_speech": raw_input,
+                "full_address": fa,
                 "ts": int(time.time()),
                 "mode": mode,
             }
@@ -121,6 +126,8 @@ def resolve_request(
     hebrew_answer = "\n".join(
         [
             "תשובה_עברית:",
+            f"  דיבור_קצר={raw_input}",
+            f"  תחום={domain or 'לא_צוין'}",
             f"  נתיב={thing['netiv']}/32",
             f"  שערים={thing['gate_count']} (מתוך 231)",
             f"  דבר={thing['hebrew']}",
@@ -138,12 +145,19 @@ def resolve_request(
         "mode": mode,
         "exists": exists,
         "user": user or "anonymous_local",
+        "domain": domain or "unspecified",
+        "short_speech": raw_input,
+        "full_address": fa,
         "space": "sy_32_netivot_22_otiyot_231_gates",
         "scheme": sy["scheme"],
         "geometry": sy["geometry"],
         "unified_language": "sy_words_external · programming_bind · sy_seal_address",
         "law": sy["law"],
         "name_is_address": True,
+        "short_vs_full": (
+            "humans talk short; system always talks full_address; "
+            "same short words + different domain/user = different things"
+        ),
         "infinity": (
             "language evolves → new names → new addresses; "
             "22·231·32 engine is finite; naming stream is open (infinite infinite infinity)"
@@ -178,6 +192,8 @@ def resolve_request(
                 "about2_hex": about2["address_hex"],
                 "op_id": op_id,
                 "user": user or "anonymous_local",
+                "domain": domain or "unspecified",
+                "short_speech": raw_input,
             },
         )
     except Exception:
@@ -190,18 +206,23 @@ def format_cosmos_block(cosmos: dict) -> str:
     a = cosmos["about_thing"]
     a2 = cosmos["about_about"]
     g = cosmos.get("geometry") or {}
+    fa = cosmos.get("full_address") or {}
     return "\n".join(
         [
             "sy.address:",
             f"  scheme={cosmos.get('scheme')}",
             f"  geometry=netivot:{g.get('netivot')} otiyot:{g.get('otiyot')} gates:{g.get('gates')}",
+            f"  short_speech={cosmos.get('short_speech')!r}",
+            f"  domain={cosmos.get('domain')}",
+            f"  user={cosmos.get('user')}",
             f"  mode={cosmos['mode']}",
             f"  exists={cosmos['exists']}",
-            f"  user={cosmos['user']}",
             f"  netiv={t.get('netiv')}/32  gates={t.get('gate_count')}",
             f"  thing=0x{t['address_hex']}  he={t['hebrew']}",
             f"  about=0x{a['address_hex']}  he={a['hebrew']}",
             f"  about2=0x{a2['address_hex']}  he={a2['hebrew']}",
+            f"  full_address={json.dumps(fa, ensure_ascii=False)}",
+            f"  short_vs_full={cosmos.get('short_vs_full')}",
             f"  law={cosmos.get('law')}",
             "",
             cosmos.get("hebrew_answer") or "",

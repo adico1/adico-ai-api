@@ -44,6 +44,26 @@ So:
 Collision of seals = same name = same thing (correct).  
 Truly new thing without a new name cannot be addressed as distinct — **name it** (extend lexicon / compound) first.
 
+### Short human speech vs full system address
+
+Humans may talk in **short language**. Short forms can look the same across fields:
+
+| human (short) | mathematician | physicist |
+|---|---|---|
+| same words | means **A** | means **B** (different thing) |
+
+The **underlying system always talks in full addresses**:
+
+```text
+full_address = short_speech + user + domain + op + seal(thing/about/about2)
+```
+
+- Same short speech + **different domain** (e.g. `mathematics` vs `physics`) → **different full addresses**  
+- Same short speech + same domain + same user → **same thing**  
+- API: pass `domain` / `field` / `discipline` / `olam` with `mi`  
+
+So: seal collision on the **full** name is same thing; short-speech collision alone is **not** enough to identify a thing.
+
 ## Every function (strict path)
 
 ```

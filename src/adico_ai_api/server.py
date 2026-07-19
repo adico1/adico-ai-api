@@ -182,14 +182,22 @@ class H(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         body = self._read_json()
         try:
-            # asking user perspective (cosmos address binds to mi)
+            # full address binds short speech + user + domain (discipline)
             mi = body.get("mi") or body.get("user") or body.get("user_id")
+            domain = (
+                body.get("domain")
+                or body.get("field")
+                or body.get("discipline")
+                or body.get("olam")
+            )
 
             if path in ("/v1/ops/batch",):
                 texts = body.get("texts") or []
                 if not texts:
                     return self._send(400, {"error": "texts required"})
-                results = pipeline.run_many([str(t) for t in texts], mi=mi)
+                results = pipeline.run_many(
+                    [str(t) for t in texts], mi=mi, domain=domain
+                )
                 return self._send(200, {"ok": True, "n": len(results), "results": results})
 
             is_messages = path.startswith("/v1/messages")
@@ -204,7 +212,7 @@ class H(BaseHTTPRequestHandler):
 
             batch = _extract_batch(body)
             if batch:
-                results = pipeline.run_many(batch, mi=mi)
+                results = pipeline.run_many(batch, mi=mi, domain=domain)
                 # industry single content = joined; full dual in adico
                 content = "\n---\n".join(pipeline.format_user_visible(r) for r in results)
                 adi = {"parallel": True, "results": results}
@@ -212,7 +220,7 @@ class H(BaseHTTPRequestHandler):
                 text = _extract_user_text(body, path)
                 if not str(text).strip():
                     return self._send(400, {"error": "empty message"})
-                result = pipeline.run_one(text, mi=mi)
+                result = pipeline.run_one(text, mi=mi, domain=domain)
                 content = pipeline.format_user_visible(result)
                 adi = result
 

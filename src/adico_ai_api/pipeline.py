@@ -41,10 +41,11 @@ def _bind_cosmos(
     raw_input: str,
     machine_answer: str,
     ata: dict,
+    domain: str | None = None,
 ) -> tuple[str, dict]:
     """
-    Every function: compute cosmos address from input → request exists or register;
-    address-about-address; Hebrew answer.
+    Every function: short human speech → full SY address (user+domain+seal);
+    request exists or register; address-about-address; Hebrew answer.
     """
     c = cosmos.resolve_request(
         user=user,
@@ -52,20 +53,25 @@ def _bind_cosmos(
         params=params,
         raw_input=raw_input,
         machine_answer=machine_answer,
+        domain=domain,
     )
     ata["cosmos"] = c
     block = cosmos.format_cosmos_block(c)
-    # machine answer first, then cosmos + Hebrew
     full = f"{machine_answer}\n\n{block}"
     return full, c
 
 
-def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
+def run_one(
+    text: str, mi: str | None = None, domain: str | None = None
+) -> dict[str, Any]:
     """Full pipe for one user text. Never invents sealed answer if no id.
 
-    mi = asking user id (perspective for cosmos unique address).
+    mi = asking user (perspective).
+    domain = discipline/field (mathematics vs physics, …) so same short speech
+             can mean different full addresses.
     """
     user = (mi or "").strip() or None
+    domain = (domain or "").strip() or None
     translated = catalog.translate(text)
     if translated is None:
         free = _freeform_upstream(text)
@@ -97,15 +103,15 @@ def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
         return {k: v for k, v in (p or {}).items() if not str(k).startswith("_")}
 
     params_key = _clean(params)
-    # cosmos address is part of uniqueness: same op+params+user
-    key_preview = cache.canonical_key(
-        op_id, {**params_key, "_user": user or "anonymous_local"}
-    )
+    # full address uniqueness: op+params+user+domain (short speech alone is not enough)
+    _ctx = {
+        "_user": user or "anonymous_local",
+        "_domain": domain or "unspecified",
+    }
+    key_preview = cache.canonical_key(op_id, {**params_key, **_ctx})
 
     # ── on-demand id decider: MEASURE FIRST ──
-    hit = cache.get(
-        config.CACHE_PATH, op_id, {**params_key, "_user": user or "anonymous_local"}
-    )
+    hit = cache.get(config.CACHE_PATH, op_id, {**params_key, **_ctx})
     if hit is not None:
         ledger.measure_first(op_id, params_key, cache_hit=True, key=hit.get("key"))
         ata = dict(hit.get("answer_that_answers") or {})
@@ -122,6 +128,7 @@ def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
             raw_input=qoq,
             machine_answer=machine_only,
             ata=ata,
+            domain=domain,
         )
         _attach_dual(ata, qoq, op_id, params_key)
         return {
@@ -196,12 +203,13 @@ def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
         raw_input=qoq,
         machine_answer=machine,
         ata=ata,
+        domain=domain,
     )
     _attach_dual(ata, qoq, op_id, params_key)
     rec = cache.put(
         config.CACHE_PATH,
         op_id,
-        {**params_key, "_user": user or "anonymous_local"},
+        {**params_key, **_ctx},
         answer,
         ata,
     )
@@ -224,16 +232,21 @@ def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
 
 
 def run_many(
-    texts: list[str], max_workers: int = 8, mi: str | None = None
+    texts: list[str],
+    max_workers: int = 8,
+    mi: str | None = None,
+    domain: str | None = None,
 ) -> list[dict[str, Any]]:
     """Parallel potential: N requests → N ops at once."""
     if not texts:
         return []
     if len(texts) == 1:
-        return [run_one(texts[0], mi=mi)]
+        return [run_one(texts[0], mi=mi, domain=domain)]
     out: list[dict[str, Any] | None] = [None] * len(texts)
     with ThreadPoolExecutor(max_workers=min(max_workers, len(texts))) as pool:
-        futs = {pool.submit(run_one, t, mi): i for i, t in enumerate(texts)}
+        futs = {
+            pool.submit(run_one, t, mi, domain): i for i, t in enumerate(texts)
+        }
         for fut in as_completed(futs):
             i = futs[fut]
             try:
