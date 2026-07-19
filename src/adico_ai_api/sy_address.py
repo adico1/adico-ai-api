@@ -5,12 +5,18 @@ SY addressing (Book of Formations) — not SHA-cosmos lottery.
   · 231 gates = C(22,2) = 22×21/2  (two-letter combinations)
   · 32 netivot (paths) — routing / address bus
 
+Law (Adi):
+  The unique name of a thing IS its cosmic address.
+  As language evolves, new names are created to identify new things.
+  That name-growth is the infinite · infinite · infinity of address space.
+  22·231·32 is the finite engine of naming; speech/lexicon growth is open.
+
 Uniqueness = identity under the unified SY language + geometry:
-  same seal (letters + gates + netiv + triad tags) ⇒ same address.
-Different language assignment ⇒ different address.
+  same name/seal ⇒ same address ⇒ same thing.
+  new thing ⇒ new name (lexicon/compound) ⇒ new address.
 
 64-bit internal = packed discrete SY seal (machine face).
-Hebrew external = 22-letter stream of the seal.
+Hebrew external = name face of the seal (22-letter stream).
 """
 from __future__ import annotations
 
@@ -253,7 +259,11 @@ def build_sy_address(
             "role": "sy_seal_about_seal_about_seal",
         },
         "law": (
-            "uniqueness = SY language seal (22 letters + 231 gates + 32 paths); "
-            "not SHA cosmic lottery"
+            "unique name of a thing = its cosmic address; "
+            "22+231+32 = naming engine; "
+            "language evolves → new names → new addresses → infinite infinite infinity; "
+            "not SHA lottery"
         ),
+        "name": he,
+        "name_is_address": True,
     }

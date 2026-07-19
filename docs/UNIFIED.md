@@ -18,8 +18,31 @@
 | **gates** | **231** = C(22,2) | two-letter combination seals |
 | **netivot** | **32** | routing / address bus paths |
 
-Uniqueness = **same seal under unified language** (letters + gates + path).  
-Not “unique atom in physics.” Collision of seals = same thing in the language (correct).
+### Unique name = cosmic address
+
+| law | meaning |
+|---|---|
+| **Name of a thing** | **is** its cosmic address (not a label stuck on a separate id) |
+| **Same name** | same address · same thing under unified language |
+| **New thing** | needs a **new name** (language evolves) |
+| **Infinity** | not from a fixed 2⁶⁴ lottery — from **open language growth** |
+
+The 22 · 231 · 32 geometry is the **engine of naming** (how names are formed and routed).  
+It is **finite as alphabet**, **infinite as speech**: as the lexicon grows (new SY words, new compounds, new seals), new names appear → new addresses → capacity without end.
+
+```
+thing  ↔  unique name  ↔  cosmic address (SY seal)
+language evolves  →  new names  →  new addresses
+                  →  infinite · infinite · infinity
+```
+
+So:
+
+- **Not claimed:** “this u64 is unique across all physics forever by bit count.”  
+- **Claimed:** “under this language, the thing’s **only** id is its **name/seal**; evolution of names is evolution of the address space.”
+
+Collision of seals = same name = same thing (correct).  
+Truly new thing without a new name cannot be addressed as distinct — **name it** (extend lexicon / compound) first.
 
 ## Every function (strict path)
 

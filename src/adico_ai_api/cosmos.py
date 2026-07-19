@@ -143,9 +143,15 @@ def resolve_request(
         "geometry": sy["geometry"],
         "unified_language": "sy_words_external · programming_bind · sy_seal_address",
         "law": sy["law"],
+        "name_is_address": True,
+        "infinity": (
+            "language evolves → new names → new addresses; "
+            "22·231·32 engine is finite; naming stream is open (infinite infinite infinity)"
+        ),
         "thing": {
             **thing,
-            "role": "unique_sy_seal_of_the_thing",
+            "role": "unique_name_equals_cosmic_address",
+            "name": thing.get("hebrew"),
         },
         "about_thing": {
             **about,
