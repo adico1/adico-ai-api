@@ -36,6 +36,7 @@ See **[docs/TALK.md](docs/TALK.md)**. Advanced: `~/work/extension/advanced/SY`
 | Waste | talk little (form only), do much · **compute once** · re-ask → **one op answer** |
 | Speech | **SY words only** |
 | Map | **programming terms only** (no mysticism) |
+| Math | **not invented** — stdlib / 3rd-party **bound** into unified core only |
 | Multi-lingual | **no** |
 | Representation | **Hebrew + spaces + punct external** · **64-bit internal** |
 | History law | Babylonians spoke 64-bit · Hebrew simplified to 22-letter combinations |
@@ -124,11 +125,19 @@ data/            # local cache (gitignored contents)
 | `ADICO_UPSTREAM` | empty | optional local upstream for freeform |
 | `ADICO_ALLOW_NON_LOOPBACK` | `0` | must be `1` to bind non-loopback |
 
+## Math / functions
+
+**Do not invent math.** Use built-in and 3rd-party; **clone/bind** into this package so every call complies with the unified core:
+
+`measure_first → install|cache → execute(bound provider) → cosmos address → ledger`
+
+See **[docs/UNIFIED.md](docs/UNIFIED.md)**.
+
 ## Honesty
 
 - **Potential:** everything in parallel, books → ids, human-body class do.
-- **Actual in this repo today:** industry face + sealed catalog ops + install/execute hooks + **one-op local cache** + dual out + batch parallel execute for multiple user messages.
-- Extending the catalog (from symbolic books) is how potential becomes act — not chat agreement.
+- **Actual:** industry face + SY speech + bound stdlib math + address/cosmos + ledger.
+- Extending = more SY words + more **binds** to existing libraries — not new arithmetic invented here.
 
 ## Owner
 

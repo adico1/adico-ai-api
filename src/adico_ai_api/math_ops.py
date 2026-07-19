@@ -1,34 +1,147 @@
 """
-Machine math ops (programming only).
+Math bindings — NOT invented.
 
-Registered on-demand via catalog; every run is measure-first → install → execute
-and signed to system.ledger (via pipeline / math_event).
+Only:
+  · Python built-ins / stdlib (operator, math, decimal)
+  · optional 3rd party if already installed (e.g. numpy)
 
-Ops: add sub mul div mod pow  (+ numeric list helpers)
+Every call is only a thin speech → bind → stdlib/3rd-party call.
+All traffic still goes through the unified core package pipeline:
+  measure_first → install → execute → cosmos address → ledger
+
+No custom arithmetic algorithms in this package.
 """
 from __future__ import annotations
 
+import math
 import operator
 import re
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 
-_BIN: dict[str, Callable[[Any, Any], Any]] = {
-    "add": operator.add,
-    "sub": operator.sub,
-    "mul": operator.mul,
-    "div": operator.truediv,
-    "mod": operator.mod,
-    "pow": operator.pow,
-}
+# ── providers (stdlib first; optional 3rd party) ─────────────────
+def _stdlib_provider() -> dict[str, Callable[..., Any]]:
+    return {
+        "add": operator.add,
+        "sub": operator.sub,
+        "mul": operator.mul,
+        "div": operator.truediv,
+        "mod": operator.mod,
+        "pow": operator.pow,
+        "abs": operator.abs,
+        "neg": operator.neg,
+        "floordiv": operator.floordiv,
+        # math module (stdlib)
+        "sqrt": math.sqrt,
+        "floor": math.floor,
+        "ceil": math.ceil,
+        "log": math.log,
+        "log10": math.log10,
+        "exp": math.exp,
+        "sin": math.sin,
+        "cos": math.cos,
+        "tan": math.tan,
+    }
 
-_SPEECH = {
-    "add": ("add", "plus"),
-    "sub": ("sub", "subtract", "minus"),
-    "mul": ("mul", "multiply", "times"),
-    "div": ("div", "divide"),
-    "mod": ("mod", "modulo"),
-    "pow": ("pow", "power"),
-}
+
+def _decimal_provider() -> dict[str, Callable[..., Any]]:
+    """stdlib decimal — exact decimal arithmetic, not invented."""
+
+    def dadd(a, b):
+        return Decimal(str(a)) + Decimal(str(b))
+
+    def dsub(a, b):
+        return Decimal(str(a)) - Decimal(str(b))
+
+    def dmul(a, b):
+        return Decimal(str(a)) * Decimal(str(b))
+
+    def ddiv(a, b):
+        return Decimal(str(a)) / Decimal(str(b))
+
+    return {
+        "decimal_add": dadd,
+        "decimal_sub": dsub,
+        "decimal_mul": dmul,
+        "decimal_div": ddiv,
+    }
+
+
+def _numpy_provider() -> dict[str, Callable[..., Any]] | None:
+    try:
+        import numpy as np  # type: ignore
+    except ImportError:
+        return None
+    return {
+        "np_add": np.add,
+        "np_sub": np.subtract,
+        "np_mul": np.multiply,
+        "np_div": np.true_divide,
+        "np_pow": np.power,
+        "np_sqrt": np.sqrt,
+        "np_sum": np.sum,
+    }
+
+
+_PROVIDERS: list[tuple[str, dict[str, Callable[..., Any]]]] = []
+_BIN_NAMES = frozenset(
+    {
+        "add",
+        "sub",
+        "mul",
+        "div",
+        "mod",
+        "pow",
+        "floordiv",
+        "decimal_add",
+        "decimal_sub",
+        "decimal_mul",
+        "decimal_div",
+        "np_add",
+        "np_sub",
+        "np_mul",
+        "np_div",
+        "np_pow",
+    }
+)
+_UNARY_NAMES = frozenset(
+    {"abs", "neg", "sqrt", "floor", "ceil", "log", "log10", "exp", "sin", "cos", "tan", "np_sqrt"}
+)
+
+
+def _rebuild_providers() -> None:
+    global _PROVIDERS
+    _PROVIDERS = [("stdlib.operator_math", _stdlib_provider()), ("stdlib.decimal", _decimal_provider())]
+    np_p = _numpy_provider()
+    if np_p:
+        _PROVIDERS.append(("third_party.numpy", np_p))
+
+
+_rebuild_providers()
+
+
+def list_bindings() -> list[dict[str, Any]]:
+    out = []
+    for source, table in _PROVIDERS:
+        for name, fn in table.items():
+            out.append(
+                {
+                    "name": name,
+                    "source": source,
+                    "arity": "binary" if name in _BIN_NAMES or name.startswith("np_") and name != "np_sqrt" and name != "np_sum" else "unary_or_var",
+                    "invented": False,
+                    "callable": f"{fn.__module__}.{getattr(fn, '__name__', type(fn).__name__)}",
+                }
+            )
+    return out
+
+
+def resolve(name: str) -> tuple[str, Callable[..., Any]]:
+    """Return (provider_source, fn). Raises KeyError if unknown."""
+    for source, table in _PROVIDERS:
+        if name in table:
+            return source, table[name]
+    raise KeyError(f"no_binding:{name}")
 
 
 def _num(tok: str):
@@ -42,57 +155,107 @@ def _num(tok: str):
     raise ValueError(f"not_a_number:{tok}")
 
 
-def parse_binary(raw: str) -> dict:
-    """'a b' or 'a, b' or 'a + b' style second number after op word already stripped."""
+def parse_args(raw: str, arity: str) -> dict:
     s = (raw or "").strip().replace(",", " ")
-    # allow a+b without spaces for two ints
-    m = re.fullmatch(r"([+-]?(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+))\s*([+\-*/%^]?)\s*([+-]?(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+))", s)
-    if m and m.group(2) in ("",):
-        return {"a": _num(m.group(1)), "b": _num(m.group(3))}
     parts = [p for p in re.split(r"\s+", s) if p]
-    if len(parts) != 2:
-        # try a+b
-        m2 = re.fullmatch(
-            r"([+-]?(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+))\s*[+\-*/%^]\s*([+-]?(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+))",
-            s,
-        )
-        if m2:
-            return {"a": _num(m2.group(1)), "b": _num(m2.group(2))}
-        raise ValueError("need_two_numbers")
-    return {"a": _num(parts[0]), "b": _num(parts[1])}
+    if arity == "unary":
+        if len(parts) != 1:
+            raise ValueError("need_one_number")
+        return {"a": _num(parts[0])}
+    # binary
+    if len(parts) == 2:
+        return {"a": _num(parts[0]), "b": _num(parts[1])}
+    m2 = re.fullmatch(
+        r"([+-]?(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+))\s*[+\-*/%^]\s*([+-]?(?:0x[0-9a-fA-F]+|\d+\.\d+|\d+))",
+        s,
+    )
+    if m2:
+        return {"a": _num(m2.group(1)), "b": _num(m2.group(2))}
+    raise ValueError("need_two_numbers")
 
 
-def run_binary(op: str, params: dict) -> str:
-    if op not in _BIN:
-        raise KeyError(op)
-    a, b = params["a"], params["b"]
-    if op == "div" and b == 0:
-        return f"div({a}, {b}) = error:div_zero"
-    if op == "mod" and b == 0:
-        return f"mod({a}, {b}) = error:mod_zero"
-    if op == "pow" and isinstance(b, int) and b > 64:
-        # keep deterministic and bounded
-        return f"pow({a}, {b}) = error:exp_too_large"
-    val = _BIN[op](a, b)
-    if isinstance(val, float) and val.is_integer():
-        val = int(val)
-    return f"{op}({a}, {b}) = {val}"
+def run_bound(name: str, params: dict) -> str:
+    """Call only the bound stdlib/3rd-party function. No invented math."""
+    source, fn = resolve(name)
+    try:
+        if name in _UNARY_NAMES or name in ("abs", "neg", "sqrt", "floor", "ceil", "log", "log10", "exp", "sin", "cos", "tan", "np_sqrt"):
+            a = params["a"]
+            val = fn(a)
+            shown = f"{name}({a})"
+        elif name == "np_sum":
+            # third-party reduce
+            import numpy as np  # type: ignore
+
+            arr = params.get("numbers") or [params.get("a"), params.get("b")]
+            arr = [x for x in arr if x is not None]
+            val = fn(np.array(arr, dtype=float))
+            shown = f"np_sum({arr})"
+        else:
+            a, b = params["a"], params["b"]
+            val = fn(a, b)
+            shown = f"{name}({a}, {b})"
+        if isinstance(val, float) and val == int(val) and abs(val) < 1e15:
+            val = int(val)
+        elif isinstance(val, Decimal):
+            val = format(val, "f")
+        return f"{shown} = {val}  [provider={source}]"
+    except ZeroDivisionError:
+        return f"{name}(...) = error:div_zero  [provider={source}]"
+    except (OverflowError, ValueError, InvalidOperation) as e:
+        return f"{name}(...) = error:{type(e).__name__}  [provider={source}]"
+
+
+# speech → binding name (machine forms only; not invented ops)
+_SPEECH_TO_BIND: list[tuple[str, tuple[str, ...], str]] = [
+    # (bind_name, speech_words, arity)
+    ("add", ("add", "plus"), "binary"),
+    ("sub", ("sub", "subtract", "minus"), "binary"),
+    ("mul", ("mul", "multiply", "times"), "binary"),
+    ("div", ("div", "divide"), "binary"),
+    ("mod", ("mod", "modulo"), "binary"),
+    ("pow", ("pow", "power"), "binary"),
+    ("floordiv", ("floordiv",), "binary"),
+    ("abs", ("abs",), "unary"),
+    ("sqrt", ("sqrt",), "unary"),
+    ("floor", ("floor",), "unary"),
+    ("ceil", ("ceil",), "unary"),
+    ("log", ("log",), "unary"),
+    ("log10", ("log10",), "unary"),
+    ("exp", ("exp",), "unary"),
+    ("sin", ("sin",), "unary"),
+    ("cos", ("cos",), "unary"),
+    ("tan", ("tan",), "unary"),
+    ("decimal_add", ("decimal_add",), "binary"),
+    ("decimal_mul", ("decimal_mul",), "binary"),
+]
 
 
 def register_into(catalog_mod) -> None:
-    """Register math speech forms on catalog module."""
-    for op, words in _SPEECH.items():
-        alts = "|".join(words)
+    """Register speech → bound stdlib/3rd-party only, through unified catalog."""
+    _rebuild_providers()
+    available = {b["name"] for b in list_bindings()}
 
-        def _make_fn(op_name: str):
+    for bind_name, words, arity in _SPEECH_TO_BIND:
+        if bind_name not in available:
+            continue
+        alts = "|".join(re.escape(w) for w in words)
+
+        def _make_fn(bn: str):
             def _fn(params: dict) -> str:
-                out = run_binary(op_name, params)
+                out = run_bound(bn, params)
                 try:
                     from . import ledger
 
+                    src, _ = resolve(bn)
                     ledger.math_event(
-                        f"op.math.{op_name}",
-                        {"a": params.get("a"), "b": params.get("b"), "result": out},
+                        f"op.math.{bn}",
+                        {
+                            "binding": bn,
+                            "provider": src,
+                            "invented": False,
+                            "params": {k: params.get(k) for k in ("a", "b") if k in params},
+                            "result": out,
+                        },
                     )
                 except Exception:
                     pass
@@ -105,16 +268,41 @@ def register_into(catalog_mod) -> None:
             rf"^(?:{alts})\s+(.+)\s*$",
         ]
         catalog_mod._reg(
-            f"op.math.{op}",
+            f"op.math.{bind_name}",
             patterns,
-            lambda m, _op=op: parse_binary(m.group(1)),
-            _make_fn(op),
+            lambda m, ar=arity: parse_args(m.group(1), ar),
+            _make_fn(bind_name),
         )
         catalog_mod.TALK_FORMS.append(
             {
-                "id": f"op.math.{op}",
-                "say": [f"{words[0]} a b", f"{words[0]}(a,b)"],
-                "params": "two numbers (int/float/0x hex)",
-                "computer": f"{op}(a,b) → number",
+                "id": f"op.math.{bind_name}",
+                "say": [f"{words[0]} …", f"{words[0]}(…)"],
+                "binding": bind_name,
+                "invented": False,
+                "source": "stdlib or optional third_party via unified core",
+                "computer": f"bound {bind_name} — no invented math",
             }
         )
+
+    # optional numpy if present
+    if "np_add" in available:
+        for bn, words in (
+            ("np_add", ("np_add",)),
+            ("np_mul", ("np_mul",)),
+            ("np_sqrt", ("np_sqrt",)),
+        ):
+            alts = words[0]
+
+            def _make_np(bn: str, ar: str):
+                def _fn(params: dict) -> str:
+                    return run_bound(bn, params)
+
+                return _fn
+
+            ar = "unary" if bn == "np_sqrt" else "binary"
+            catalog_mod._reg(
+                f"op.math.{bn}",
+                [rf"^{alts}\s*\(\s*(.+)\s*\)\s*$", rf"^{alts}\s+(.+)\s*$"],
+                lambda m, ar=ar: parse_args(m.group(1), ar),
+                _make_np(bn, ar),
+            )

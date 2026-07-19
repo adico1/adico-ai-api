@@ -191,15 +191,18 @@ def parse_sum_payload(raw: str) -> dict[str, Any]:
 
 def sum_address(parts: list[dict]) -> dict[str, Any]:
     """
-    Sum part u64s → address.
+    Sum part u64s → address using stdlib operator.add only (not invented math).
     If address already in table → request_existing.
     Else → tune_calculate (register).
     """
+    import operator as _op
+
     with _lock:
         _load_table()
         total = 0
         for p in parts:
-            total = (total + int(p["u64"])) & MASK64
+            # builtin fold — same as operator.add in a loop
+            total = _op.add(total, int(p["u64"])) & MASK64
         addr_hex = f"{total:016x}"
         if addr_hex in _TABLE:
             rec = dict(_TABLE[addr_hex])

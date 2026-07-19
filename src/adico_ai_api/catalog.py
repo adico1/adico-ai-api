@@ -237,7 +237,7 @@ TALK_FORMS: list[dict] = [
     },
 ]
 
-# more math functions (add/sub/mul/div/mod/pow) — machine ops, ledger-signed
+# Math: bind stdlib / optional 3rd party only — never invent algorithms
 import sys as _sys  # noqa: E402
 from . import math_ops as _math_ops  # noqa: E402
 
@@ -250,6 +250,17 @@ def talk_protocol() -> dict:
         "mysticism": False,
         "speech": "sy_words_only",
         "target": "programming_terms_only",
+        "math": {
+            "invented": False,
+            "rule": "use builtin/stdlib/3rd-party only; bind through unified core package",
+            "bindings": _math_ops.list_bindings(),
+            "docs": "docs/UNIFIED.md",
+        },
+        "unified_core": {
+            "package": "adico_ai_api",
+            "path": "measure_first → install|cache → execute(bound) → cosmos → ledger",
+            "strict": True,
+        },
         "representation": bits64.law_public(),
         "sy": {
             "mode": "SY lexicon words only (Book of Formations)",
@@ -262,17 +273,17 @@ def talk_protocol() -> dict:
             "forms": sy_lexicon.talk_forms(),
         },
         "machine_ops_not_sy": {
-            "note": "optional dev/machine forms — not SY speech; not the HE human language",
+            "note": "machine speech → bound stdlib/3rd-party; not SY; not invented math",
             "forms": TALK_FORMS,
         },
         "stage": "learn_sy_words",
         "rule": (
-            "Support only SY words. "
-            "Fix every map to computers/programming terms. "
-            "Hebrew external · 64-bit internal."
+            "SY words only for HE speech. "
+            "Math = builtin/3rd-party bound into unified core only. "
+            "No invented math. Hebrew external · 64-bit internal."
         ),
-        "path_to_everything": "grow SY lexicon with programming targets only",
-        "docs": "docs/TALK.md",
+        "path_to_everything": "grow SY lexicon + bind more stdlib/3rd-party through core",
+        "docs": ["docs/TALK.md", "docs/UNIFIED.md"],
     }
 
 
