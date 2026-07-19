@@ -103,13 +103,25 @@ mod 10 3         → mod(10, 3) = 1
 pow 2 8          → pow(2, 8) = 256
 ```
 
+### Cosmos address (every function)
+
+Each request under the unified language:
+
+1. **address of the thing** — unique u64 from `(user, op, params, input)` in cosmos space  
+2. **request existing** or **tune_calculate_register**  
+3. **address about address** — unique u64 about that address  
+4. **address about address-about-address**  
+5. **Hebrew answer** — u64 → 22-letter external + programming→SY word map  
+
+User perspective: pass `mi` / `user` in JSON body.
+
 ### system.ledger (on-demand id decider)
 
 Every sealed id:
 
 1. **measure_first** — cache hit? → reuse (no re-install / re-execute)  
-2. else **install** + **execute**  
-3. lines signed: `adico_measure_first` · `adico_on_demand_install` · `adico_on_demand_execute` · `adico_address_sum` · `adico_math`
+2. else **install** + **execute** + **cosmos address**  
+3. lines signed: `adico_measure_first` · `adico_on_demand_install` · `adico_on_demand_execute` · `adico_address_sum` · `adico_math` · `adico_cosmos_address`
 
 Ledger path default: `/Users/adicohen/Projects/system.ledger` (`ADICO_LEDGER_PATH`, `ADICO_LEDGER=0` to disable).
 

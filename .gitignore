@@ -7,6 +7,7 @@ dist/
 build/
 data/*.jsonl
 data/addresses.jsonl
+data/cosmos_addresses.jsonl
 data/catalog_extra.json
 .DS_Store
 .env
