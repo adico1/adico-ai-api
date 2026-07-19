@@ -118,17 +118,24 @@ mod 10 3         → mod(10, 3) = 1
 pow 2 8          → pow(2, 8) = 256
 ```
 
-### Cosmos address (every function)
+### SY address (every function) — 22 · 231 · 32
 
-Each request under the unified language:
+Not SHA-cosmos. **Sefer Yetzira geometry:**
 
-1. **address of the thing** — unique u64 from `(user, op, params, input)` in cosmos space  
-2. **request existing** or **tune_calculate_register**  
-3. **address about address** — unique u64 about that address  
-4. **address about address-about-address**  
-5. **Hebrew answer** — u64 → 22-letter external + programming→SY word map  
+| | |
+|---|---|
+| **22** otiyot | letter stream of the request |
+| **231** gates | C(22,2) two-letter combination seals |
+| **32** netivot | path on the address bus |
 
-User perspective: pass `mi` / `user` in JSON body.
+Each request:
+
+1. **seal of the thing** (letters + gates + netiv → packed u64 + Hebrew)  
+2. **request existing** or **engrave/register**  
+3. **seal about seal** · **seal about that**  
+4. **Hebrew answer** (seal faces + programming→SY map)  
+
+User perspective: pass `mi` / `user`.
 
 ### system.ledger (on-demand id decider)
 

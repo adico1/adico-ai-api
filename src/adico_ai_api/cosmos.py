@@ -1,28 +1,26 @@
 """
-Cosmos-space unique addresses under the unified language.
+Cosmos addresses = SY seals (not truncated SHA).
+
+  32 netivot (paths) · 22 otiyot · 231 gates
+  uniqueness under unified SY language + geometry
 
 Every function request:
-  1) compute address id from input (thing under unified language)
-  2) request exists? → reuse : register (tune)
-  3) unique address about that unique address (meta)
-  4) answer translated to Hebrew (22-letter external face)
-
-From the asking user's perspective: addresses bind to user + request.
-Space: full 64-bit cosmos (mod 2^64).
+  1) build SY seal from input (thing)
+  2) request existing seal or engrave (register)
+  3) seal about seal · seal about that
+  4) Hebrew answer = seal faces + programming→SY map
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import threading
 import time
 from pathlib import Path
 from typing import Any
 
-from . import bits64, config, ledger, sy_lexicon
-from . import PRODUCT_ID, OWNER
+from . import config, ledger, sy_address, sy_lexicon
+from . import PRODUCT_ID
 
-MASK64 = bits64.MASK64
 _lock = threading.Lock()
 _TABLE: dict[str, dict] = {}
 _loaded = False
@@ -60,67 +58,14 @@ def _persist(rec: dict) -> None:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
-def u64_to_hebrew(u: int) -> str:
-    """Map u64 → external Hebrew (base-22 otiyot only) — language answer face."""
-    if u < 0:
-        u = u & MASK64
-    if u == 0:
-        return bits64.OTIYOT_22[0]
-    digits = []
-    n = u
-    # fixed 14 digits (max letters per limb packing capacity style)
-    for _ in range(14):
-        digits.append(bits64.OTIYOT_22[n % 22])
-        n //= 22
-        if n == 0:
-            break
-    return "".join(reversed(digits))
-
-
-def compute_content_u64(
-    *,
-    user: str | None,
-    op_id: str,
-    params: dict,
-    raw_input: str,
-) -> int:
-    """Unique address for the thing under unified language (user perspective)."""
-    body = {
-        "space": "cosmos",
-        "product": PRODUCT_ID,
-        "user": user or "anonymous_local",
-        "op_id": op_id,
-        "params": params,
-        "input": raw_input,
-        "language": "unified_sy_programming",
-    }
-    raw = json.dumps(body, ensure_ascii=False, sort_keys=True, default=str).encode("utf-8")
-    return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
-
-
-def address_of_address(content_u64: int) -> int:
-    """Unique address about unique address (meta id in cosmos space)."""
-    raw = b"address_about_address:" + content_u64.to_bytes(8, "big") + b":" + PRODUCT_ID.encode()
-    return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
-
-
-def address_of_address_of_address(meta_u64: int) -> int:
-    """Second meta: unique address about the address-about-address."""
-    raw = b"address_about_address_about:" + meta_u64.to_bytes(8, "big")
-    return int.from_bytes(hashlib.sha256(raw).digest()[:8], "big")
-
-
 def prog_to_hebrew_words(text: str) -> str:
-    """Map programming terms in a machine answer back to SY Hebrew words."""
     sy_lexicon._load()
     rev = {}
     for e in sy_lexicon._TERMS_SORTED:
         rev.setdefault(e["to"], e["from"])
-    # longest programming tokens first
     out = text
     for prog in sorted(rev.keys(), key=len, reverse=True):
-        he = rev[prog]
-        out = out.replace(prog, he)
+        out = out.replace(prog, rev[prog])
     return out
 
 
@@ -132,23 +77,17 @@ def resolve_request(
     raw_input: str,
     machine_answer: str,
 ) -> dict[str, Any]:
-    """
-    Full cosmos address cycle for one function call.
-    Returns structured dual (internal u64 + Hebrew) + existence mode.
-    """
-    content = compute_content_u64(
-        user=user, op_id=op_id, params=params, raw_input=raw_input
+    """SY seal cycle for one function call."""
+    sy = sy_address.build_sy_address(
+        raw_input=raw_input,
+        op_id=op_id,
+        params=params or {},
+        user=user,
     )
-    about = address_of_address(content)
-    about2 = address_of_address_of_address(about)
-
-    content_hex = f"{content:016x}"
-    about_hex = f"{about:016x}"
-    about2_hex = f"{about2:016x}"
-
-    content_he = u64_to_hebrew(content)
-    about_he = u64_to_hebrew(about)
-    about2_he = u64_to_hebrew(about2)
+    thing = sy["thing"]
+    about = sy["about_thing"]
+    about2 = sy["about_about"]
+    content_hex = thing["address_hex"]
 
     with _lock:
         _load()
@@ -160,12 +99,15 @@ def resolve_request(
             mode = "tune_calculate_register"
             exists = False
             rec = {
+                "scheme": sy["scheme"],
                 "address_hex": content_hex,
-                "address_u64": content,
-                "about_hex": about_hex,
-                "about_u64": about,
-                "about2_hex": about2_hex,
-                "about2_u64": about2,
+                "address_u64": thing["address_u64"],
+                "netiv": thing["netiv"],
+                "gates": thing["gates"],
+                "letters": thing["letters"],
+                "hebrew": thing["hebrew"],
+                "about_hex": about["address_hex"],
+                "about2_hex": about2["address_hex"],
                 "user": user or "anonymous_local",
                 "op_id": op_id,
                 "input": raw_input,
@@ -179,10 +121,12 @@ def resolve_request(
     hebrew_answer = "\n".join(
         [
             "תשובה_עברית:",
-            f"  דבר={content_he}",
-            f"  כתובת_על_כתובת={about_he}",
-            f"  כתובת_על_כתובת_על_כתובת={about2_he}",
-            f"  מצב={'קיים' if exists else 'חושב_ונרשם'}",
+            f"  נתיב={thing['netiv']}/32",
+            f"  שערים={thing['gate_count']} (מתוך 231)",
+            f"  דבר={thing['hebrew']}",
+            f"  כתובת_על_כתובת={about['hebrew']}",
+            f"  כתובת_על_כתובת_על_כתובת={about2['hebrew']}",
+            f"  מצב={'קיים' if exists else 'נחקק_ונרשם'}",
             f"  משתמש={user or 'מקומי'}",
             "",
             "מיפוי_תכנות_לעברית:",
@@ -194,25 +138,22 @@ def resolve_request(
         "mode": mode,
         "exists": exists,
         "user": user or "anonymous_local",
-        "space": "cosmos_u64",
-        "unified_language": "sy_words_external · programming_internal · u64_cosmos",
+        "space": "sy_32_netivot_22_otiyot_231_gates",
+        "scheme": sy["scheme"],
+        "geometry": sy["geometry"],
+        "unified_language": "sy_words_external · programming_bind · sy_seal_address",
+        "law": sy["law"],
         "thing": {
-            "address_u64": content,
-            "address_hex": content_hex,
-            "hebrew": content_he,
-            "role": "unique_address_of_the_thing",
+            **thing,
+            "role": "unique_sy_seal_of_the_thing",
         },
         "about_thing": {
-            "address_u64": about,
-            "address_hex": about_hex,
-            "hebrew": about_he,
-            "role": "unique_address_about_unique_address",
+            **about,
+            "role": "sy_seal_about_sy_seal",
         },
         "about_about": {
-            "address_u64": about2,
-            "address_hex": about2_hex,
-            "hebrew": about2_he,
-            "role": "unique_address_about_address_about_address",
+            **about2,
+            "role": "sy_seal_about_seal_about_seal",
         },
         "hebrew_answer": hebrew_answer,
         "record": rec,
@@ -221,11 +162,14 @@ def resolve_request(
         ledger.sign(
             "adico_cosmos_address",
             {
+                "scheme": sy["scheme"],
                 "mode": mode,
                 "exists": exists,
+                "netiv": thing["netiv"],
+                "gates_n": thing["gate_count"],
                 "address_hex": content_hex,
-                "about_hex": about_hex,
-                "about2_hex": about2_hex,
+                "about_hex": about["address_hex"],
+                "about2_hex": about2["address_hex"],
                 "op_id": op_id,
                 "user": user or "anonymous_local",
             },
@@ -239,15 +183,20 @@ def format_cosmos_block(cosmos: dict) -> str:
     t = cosmos["thing"]
     a = cosmos["about_thing"]
     a2 = cosmos["about_about"]
+    g = cosmos.get("geometry") or {}
     return "\n".join(
         [
-            "cosmos.address:",
+            "sy.address:",
+            f"  scheme={cosmos.get('scheme')}",
+            f"  geometry=netivot:{g.get('netivot')} otiyot:{g.get('otiyot')} gates:{g.get('gates')}",
             f"  mode={cosmos['mode']}",
             f"  exists={cosmos['exists']}",
             f"  user={cosmos['user']}",
+            f"  netiv={t.get('netiv')}/32  gates={t.get('gate_count')}",
             f"  thing=0x{t['address_hex']}  he={t['hebrew']}",
             f"  about=0x{a['address_hex']}  he={a['hebrew']}",
             f"  about2=0x{a2['address_hex']}  he={a2['hebrew']}",
+            f"  law={cosmos.get('law')}",
             "",
             cosmos.get("hebrew_answer") or "",
         ]

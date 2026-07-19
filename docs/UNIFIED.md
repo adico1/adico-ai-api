@@ -8,6 +8,18 @@
 | **Math sources** | Python **built-in / stdlib** (`operator`, `math`, `decimal`) and optional **3rd party** already installed (e.g. `numpy`) |
 | **How we use them** | **Bind / clone call** only — thin speech → provider function |
 | **Where they run** | Only through the **unified core package** (`adico_ai_api`) |
+| **Addresses** | **SY seals** — not truncated SHA “cosmic lottery” |
+
+## SY address (better uniqueness for this system)
+
+| piece | count | role |
+|---|---|---|
+| **otiyot** | **22** | external letter stream |
+| **gates** | **231** = C(22,2) | two-letter combination seals |
+| **netivot** | **32** | routing / address bus paths |
+
+Uniqueness = **same seal under unified language** (letters + gates + path).  
+Not “unique atom in physics.” Collision of seals = same thing in the language (correct).
 
 ## Every function (strict path)
 
