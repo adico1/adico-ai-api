@@ -5,19 +5,38 @@
 
 Industry-shaped AI API. **Data stays local. Life is on the network.** Many develop it; many use it after.
 
+## Talk (this stage) — not multi-lingual yet
+
+There **is** a way to talk to the deterministic AI now.  
+People **must learn that speech** (sealed forms → ids). Free multi-language chat is **not** the product yet.
+
+| | |
+|---|---|
+| **Wire** | industry (OpenAI / Ollama / Anthropic-shaped) |
+| **Speech** | sealed forms only — see **[docs/TALK.md](docs/TALK.md)** or `GET /v1/talk` |
+| **Everything** | grows when catalog gains ids + forms; users learn to speak them |
+| **Unknown words** | honest miss — no invention |
+
+```bash
+curl -s http://127.0.0.1:8843/v1/talk | python3 -m json.tool
+```
+
+Examples of speech that work today: `17*19` · `time` · `hash hello` · `len abcd` · `who are you`
+
 ## Product law
 
 | law | meaning |
 |---|---|
-| Most complex request | **everything** a human can ask to know or do with the same body + connectivity |
+| Most complex request | **everything** — reached by more ids + learned speech, not by free prose |
 | Today’s industry AI | practically **nothing** complete under that bar |
 | This API (potential) | answers **everything in parallel** via sealed ops |
-| Deterministic | input → questions-of-question → **id** → **install** → **execute(params)** → **(answer, answer_that_answers)** |
-| Waste | talk little, do much · **compute once** · re-ask → **one op answer** (cache hit) |
+| Deterministic | speech form → **id** → **install** → **execute(params)** → **(answer, answer_that_answers)** |
+| Waste | talk little (form only), do much · **compute once** · re-ask → **one op answer** |
+| Multi-lingual | **not yet** — one sealed speech surface |
 | Data | **local** per user machine |
 | Life | **network**: protocol, catalog of ids, multi-dev, multi-user |
 
-This is **not** a new proprietary chat dialect. Wire shape = what the industry already speaks:
+Wire shape (not the speech itself) = industry:
 
 - OpenAI: `POST /v1/chat/completions`, `GET /v1/models`
 - Ollama-compatible: `POST /api/chat`, `POST /api/generate`, `GET /api/tags`

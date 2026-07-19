@@ -17,6 +17,12 @@ paths:
       responses:
         "200":
           description: OK
+  /v1/talk:
+    get:
+      summary: Sealed speech forms — how people must talk (not multi-lingual yet)
+      responses:
+        "200":
+          description: forms + ids
   /v1/models:
     get:
       summary: OpenAI models list

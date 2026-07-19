@@ -87,22 +87,23 @@ def _install_mark(params: dict) -> str:
     return f"installed_id={params.get('target_id', '')}"
 
 
-# --- routes: questions-of-question → id ---
+# --- routes: sealed speech → id ---
+# NOT multi-lingual. One talk surface: forms below. People learn these to request work.
 _reg(
     "op.arith",
-    [r"^(?:calc|חשב|=)?\s*([0-9eE.\+\-\*/%\(\)\s]+)\s*\??\s*$"],
+    [r"^(?:calc|=)?\s*([0-9eE.\+\-\*/%\(\)\s]+)\s*\??\s*$"],
     lambda m: {"expr": re.sub(r"\s*=\s*\?\s*$", "", m.group(1)).strip().rstrip("?")},
     _arith,
 )
 _reg(
     "op.time.now",
-    [r"^(?:what\s+is\s+the\s+)?(?:time|clock|now)\b", r"(?:שעה|עכשיו)"],
+    [r"^(?:what\s+is\s+the\s+)?(?:time|clock|now)\s*$"],
     lambda m: {},
     _now,
 )
 _reg(
     "op.date.today",
-    [r"^(?:what\s+is\s+)?(?:the\s+)?(?:date|today)\b", r"(?:תאריך|היום)"],
+    [r"^(?:what\s+is\s+)?(?:the\s+)?(?:date|today)\s*$"],
     lambda m: {},
     _date,
 )
@@ -114,19 +115,19 @@ _reg(
 )
 _reg(
     "op.text.len",
-    [r"^(?:len|אורך)\s+(.+)$"],
+    [r"^len\s+(.+)$"],
     lambda m: {"text": m.group(1)},
     _len,
 )
 _reg(
     "op.text.reverse",
-    [r"^(?:reverse|הפוך)\s+(.+)$"],
+    [r"^reverse\s+(.+)$"],
     lambda m: {"text": m.group(1)},
     _rev,
 )
 _reg(
     "op.identity",
-    [r"^(?:who\s+are\s+you|what\s+are\s+you|מי אתה|מה שמך)", r"^your\s+name\b"],
+    [r"^(?:who\s+are\s+you|what\s+are\s+you|your\s+name)\s*$"],
     lambda m: {},
     _echo_identity,
 )
@@ -136,6 +137,61 @@ _reg(
     lambda m: {"target_id": m.group(1)},
     _install_mark,
 )
+
+# Teaching surface for GET /v1/talk — keep in sync with forms above
+TALK_FORMS: list[dict] = [
+    {
+        "id": "op.arith",
+        "say": ["17*19", "2+2", "calc 3*(4+5)", "= 10/2"],
+        "params": "expression of digits and + - * / % ( )",
+    },
+    {
+        "id": "op.time.now",
+        "say": ["time", "clock", "now", "what is the time"],
+        "params": "none",
+    },
+    {
+        "id": "op.date.today",
+        "say": ["date", "today", "what is the date"],
+        "params": "none",
+    },
+    {
+        "id": "op.hash.sha256",
+        "say": ["hash <text>", "sha256 <text>", "hsh <text>"],
+        "params": "text after keyword",
+    },
+    {
+        "id": "op.text.len",
+        "say": ["len <text>"],
+        "params": "text after len",
+    },
+    {
+        "id": "op.text.reverse",
+        "say": ["reverse <text>"],
+        "params": "text after reverse",
+    },
+    {
+        "id": "op.identity",
+        "say": ["who are you", "what are you", "your name"],
+        "params": "none",
+    },
+    {
+        "id": "op.catalog.install",
+        "say": ["install id <op.id>", "install_id <op.id>"],
+        "params": "target op id",
+    },
+]
+
+
+def talk_protocol() -> dict:
+    return {
+        "multilingual": False,
+        "stage": "learn_sealed_speech",
+        "rule": "people must learn forms to request work; free chat is not multi-lingual yet",
+        "path_to_everything": "more ids + more forms in catalog; users learn to talk them",
+        "forms": TALK_FORMS,
+        "docs": "docs/TALK.md",
+    }
 
 
 def _load_extra() -> None:

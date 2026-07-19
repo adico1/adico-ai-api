@@ -38,9 +38,10 @@ def run_one(text: str) -> dict[str, Any]:
                 "product": PRODUCT_ID,
             },
             "text": (
-                f"{PRODUCT_NAME}: no sealed id for this input. "
-                "Add catalog op (books → id) or set ADICO_UPSTREAM for local freeform bridge. "
-                "Potential = everything in parallel; this miss is honest."
+                f"{PRODUCT_NAME}: no sealed id — not multi-lingual yet. "
+                "Learn sealed speech: GET /v1/talk or docs/TALK.md. "
+                "Speak a catalog form to request an op. "
+                "Everything grows by new ids + forms, not free prose."
             ),
         }
 

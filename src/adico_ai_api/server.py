@@ -108,15 +108,18 @@ class H(BaseHTTPRequestHandler):
                         "data": "local",
                         "life": "network (this repo + multi-dev)",
                         "deterministic": "id→install→execute→dual→cache once",
-                        "max_request": "everything",
+                        "max_request": "everything (via learned speech + catalog growth)",
+                        "multilingual": False,
+                        "talk": "learn sealed forms — GET /v1/talk",
                         "industry_today": "practically nothing complete",
                         "potential": "everything in parallel",
                     },
                     "endpoints": {
                         "GET /health": "status",
+                        "GET /v1/talk": "how to speak sealed forms (required learning)",
                         "GET /v1/models": "OpenAI models list",
                         "GET /api/tags": "Ollama tags",
-                        "POST /v1/chat/completions": "OpenAI chat",
+                        "POST /v1/chat/completions": "OpenAI chat (content = sealed speech)",
                         "POST /v1/messages": "Anthropic-shaped",
                         "POST /api/chat": "Ollama chat",
                         "POST /api/generate": "Ollama generate",
@@ -124,6 +127,8 @@ class H(BaseHTTPRequestHandler):
                     },
                 },
             )
+        if path in ("/v1/talk", "/talk"):
+            return self._send(200, catalog.talk_protocol())
         if path in ("/v1/models",):
             return self._send(
                 200,
