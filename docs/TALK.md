@@ -97,6 +97,18 @@ Compose several terms in one line; each match is translated.
 
 Use these as the message body (examples are the teaching).
 
+### Sum — `op.arith.sum` (on the HE API)
+
+```text
+sum 1 2 3
+sum(1,2,3)
+sum 10+20+30
+סכום 1 2 3
+סכום(10, 20)
+```
+
+→ computer: `sum(1 + 2 + 3) = 6`
+
 ### Arithmetic — `op.arith`
 
 ```text

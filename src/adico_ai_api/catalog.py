@@ -62,6 +62,42 @@ def _arith(params: dict) -> str:
     return f"{expr} = {val}"
 
 
+def _sum(params: dict) -> str:
+    """Deterministic sum of numbers (list or comma/space separated)."""
+    nums = params.get("numbers") or []
+    total = 0
+    for n in nums:
+        if isinstance(n, bool):
+            raise ValueError("bool not allowed")
+        if isinstance(n, (int, float)):
+            total = total + n
+        else:
+            total = total + float(n)
+    # prefer int when exact
+    if isinstance(total, float) and total.is_integer():
+        total = int(total)
+    shown = " + ".join(str(n) for n in nums)
+    return f"sum({shown}) = {total}"
+
+
+def _parse_sum_numbers(raw: str) -> dict:
+    """Parse '1 2 3' or '1,2,3' or '1+2+3' into numbers list."""
+    s = (raw or "").strip()
+    s = s.replace(",", " ").replace("+", " ")
+    parts = [p for p in re.split(r"\s+", s) if p]
+    nums: list = []
+    for p in parts:
+        if re.fullmatch(r"[+-]?\d+", p):
+            nums.append(int(p))
+        elif re.fullmatch(r"[+-]?\d+\.\d+", p):
+            nums.append(float(p))
+        else:
+            raise ValueError(f"not a number: {p}")
+    if not nums:
+        raise ValueError("empty sum")
+    return {"numbers": nums}
+
+
 def _now(_params: dict) -> str:
     return "now=" + _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -93,6 +129,16 @@ def _install_mark(params: dict) -> str:
 
 # --- routes: sealed speech → id ---
 # NOT multi-lingual. One talk surface: forms below. People learn these to request work.
+# sum first (before generic arith) — English + limited Hebrew keyword סכום
+_reg(
+    "op.arith.sum",
+    [
+        r"^(?:sum|סכום)\s*\(\s*([0-9eE\.\+\-\s,]+)\s*\)\s*$",
+        r"^(?:sum|סכום)\s+([0-9eE\.\+\-\s,]+)\s*$",
+    ],
+    lambda m: _parse_sum_numbers(m.group(1)),
+    _sum,
+)
 _reg(
     "op.arith",
     [r"^(?:calc|=)?\s*([0-9eE.\+\-\*/%\(\)\s]+)\s*\??\s*$"],
@@ -144,6 +190,12 @@ _reg(
 
 # Teaching surface for GET /v1/talk — keep in sync with forms above
 TALK_FORMS: list[dict] = [
+    {
+        "id": "op.arith.sum",
+        "say": ["sum 1 2 3", "sum(1,2,3)", "סכום 1 2 3", "סכום(10, 20)"],
+        "params": "numbers separated by space, comma, or +",
+        "computer": "sum(numbers) → total",
+    },
     {
         "id": "op.arith",
         "say": ["17*19", "2+2", "calc 3*(4+5)", "= 10/2"],
