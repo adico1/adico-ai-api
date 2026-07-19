@@ -63,39 +63,25 @@ def _arith(params: dict) -> str:
 
 
 def _sum(params: dict) -> str:
-    """Deterministic sum of numbers (list or comma/space separated)."""
-    nums = params.get("numbers") or []
-    total = 0
-    for n in nums:
-        if isinstance(n, bool):
-            raise ValueError("bool not allowed")
-        if isinstance(n, (int, float)):
-            total = total + n
-        else:
-            total = total + float(n)
-    # prefer int when exact
-    if isinstance(total, float) and total.is_integer():
-        total = int(total)
-    shown = " + ".join(str(n) for n in nums)
-    return f"sum({shown}) = {total}"
+    """
+    sum = address op:
+      · request of an address that exists, or
+      · tuning request to calculate the address
+    Parts: SY words, programming terms, or explicit u64.
+    """
+    from . import address as _addr
+
+    parts = params.get("parts") or []
+    result = _addr.sum_address(parts)
+    # stash structured result for dual-out consumers
+    params["_address_result"] = result
+    return _addr.format_sum_result(result)
 
 
-def _parse_sum_numbers(raw: str) -> dict:
-    """Parse '1 2 3' or '1,2,3' or '1+2+3' into numbers list."""
-    s = (raw or "").strip()
-    s = s.replace(",", " ").replace("+", " ")
-    parts = [p for p in re.split(r"\s+", s) if p]
-    nums: list = []
-    for p in parts:
-        if re.fullmatch(r"[+-]?\d+", p):
-            nums.append(int(p))
-        elif re.fullmatch(r"[+-]?\d+\.\d+", p):
-            nums.append(float(p))
-        else:
-            raise ValueError(f"not a number: {p}")
-    if not nums:
-        raise ValueError("empty sum")
-    return {"numbers": nums}
+def _parse_sum_payload(raw: str) -> dict:
+    from . import address as _addr
+
+    return _addr.parse_sum_payload(raw)
 
 
 def _now(_params: dict) -> str:
@@ -129,14 +115,15 @@ def _install_mark(params: dict) -> str:
 
 # --- routes: sealed speech → id ---
 # NOT multi-lingual. One talk surface: forms below. People learn these to request work.
-# sum first (before generic arith) — English + limited Hebrew keyword סכום
+# sum = address request | address calculate (tune)
+# machine keyword `sum` — parts may be SY words / programming terms / u64
 _reg(
-    "op.arith.sum",
+    "op.address.sum",
     [
-        r"^(?:sum|סכום)\s*\(\s*([0-9eE\.\+\-\s,]+)\s*\)\s*$",
-        r"^(?:sum|סכום)\s+([0-9eE\.\+\-\s,]+)\s*$",
+        r"^sum\s*\(\s*(.+)\s*\)\s*$",
+        r"^sum\s+(.+)\s*$",
     ],
-    lambda m: _parse_sum_numbers(m.group(1)),
+    lambda m: _parse_sum_payload(m.group(1)),
     _sum,
 )
 _reg(
@@ -191,10 +178,15 @@ _reg(
 # Teaching surface for GET /v1/talk — keep in sync with forms above
 TALK_FORMS: list[dict] = [
     {
-        "id": "op.arith.sum",
-        "say": ["sum 1 2 3", "sum(1,2,3)", "סכום 1 2 3", "סכום(10, 20)"],
-        "params": "numbers separated by space, comma, or +",
-        "computer": "sum(numbers) → total",
+        "id": "op.address.sum",
+        "say": [
+            "sum מים אש אויר",
+            "sum input output process",
+            "sum 0x1782 0x14",
+            "sum(1, 2, 3)",
+        ],
+        "params": "SY words | programming terms | u64 hex/int",
+        "computer": "sum(parts.u64) → address; existing=request | new=tune_calculate",
     },
     {
         "id": "op.arith",
