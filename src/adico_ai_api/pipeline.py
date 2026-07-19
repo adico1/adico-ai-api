@@ -113,6 +113,16 @@ def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
         ata["key"] = hit["key"]
         ata["reused"] = True
         ata["decider"] = "measure_first → cache_hit (no re-install, no re-execute)"
+        # re-resolve SY seal so exists/request_existing is live (not stale first-write)
+        machine_only = (hit.get("answer") or "").split("\nsy.address:")[0].split("\ncosmos.address:")[0].rstrip()
+        answer, c = _bind_cosmos(
+            user=user,
+            op_id=op_id,
+            params=params_key,
+            raw_input=qoq,
+            machine_answer=machine_only,
+            ata=ata,
+        )
         _attach_dual(ata, qoq, op_id, params_key)
         return {
             "ok": True,
@@ -120,14 +130,14 @@ def run_one(text: str, mi: str | None = None) -> dict[str, Any]:
             "id": op_id,
             "params": params_key,
             "question_of_question": qoq,
-            "answer": hit["answer"],
+            "answer": answer,
             "answer_that_answers": ata,
-            "text": hit["answer"],
+            "text": answer,
             "cache": "hit",
             "key": hit["key"],
             "decider": "measure_first_cache_hit",
-            "cosmos": ata.get("cosmos"),
-            "hebrew_answer": (ata.get("cosmos") or {}).get("hebrew_answer"),
+            "cosmos": c,
+            "hebrew_answer": c.get("hebrew_answer"),
             "internal_op_u64_hex": ata["representation"]["internal"].get("op_u64_hex"),
         }
 
