@@ -7,16 +7,25 @@ Speech is **learned sealed forms** → **ids**. Free chat is not the product.
 
 | face | medium |
 |---|---|
-| **External** | Hebrew — 22-letter combinations (Sefer Yetzira simplification) |
+| **External** | Hebrew 22 letters + **empty spaces** + **punctuation** |
 | **Internal** | **64-bit** words (Babylonian machine face) |
 
 Babylonians spoke 64-bit. Hebrew simplified that to 22 letters.  
-**We use Hebrew externally and 64-bit internally.**
+**We use Hebrew externally and 64-bit internally.**  
+Spaces and punctuation are part of the external stream and are packed into 64-bit limbs (not dropped).
 
 Every sealed answer carries `answer_that_answers.representation`:
-- `external.hebrew_stream_22`
+- `external.stream` (letters + spaces + punct)
+- `external.hebrew_stream_22` (letters only)
 - `internal.u64_limbs` / `op_u64_hex`
 - per-term dual for SY matches
+
+Examples that pack differently because of space/punct:
+
+```text
+מים אש אויר
+מים, אש; אויר!
+```
 
 ### Hebrew (limited only)
 

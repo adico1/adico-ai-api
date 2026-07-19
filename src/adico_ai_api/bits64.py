@@ -5,19 +5,19 @@ Representation law (Adi):
   Hebrew simplified that to 22-letter combinations (Sefer Yetzira / Book of Formations).
   We use Hebrew externally and 64-bit internally.
 
-External speech  = limited Hebrew (22 otiyot combinations) + tool forms for machines
-Internal compute = uint64 words (and limbs for longer payloads)
+External speech  = 22 otiyot + empty spaces + punctuation
+Internal compute = uint64 words (base-N packed limbs + op_u64)
 """
 from __future__ import annotations
 
 import hashlib
 import json
-import struct
+import math
 from typing import Any
 
-# 22 Hebrew letters (Sefer Yetzira) — alef to tav, no finals as separate
+# 22 Hebrew letters (Sefer Yetzira) — alef to tav
 OTIYOT_22 = "אבגדהוזחטיכלמנסעפצקרשת"
-# finals → base
+# finals → base letter
 _FINALS = str.maketrans({
     "ך": "כ",
     "ם": "מ",
@@ -26,23 +26,60 @@ _FINALS = str.maketrans({
     "ץ": "צ",
 })
 
+# empty spaces (kept in external stream + internal pack)
+SPACES = " \t\n\r\u00a0"  # space, tab, LF, CR, NBSP
+
+# punctuation (Latin + Hebrew marks + common symbols)
+PUNCT = (
+    ".,;:!?…·•"
+    "'\"“”‘’׳״"
+    "-–—־"
+    "()[]{}"
+    "/\\|"
+    "@#$%^&*_+=<>~`"
+    "«»‹›"
+)
+
+# Full external alphabet: 22 letters + spaces + punctuation (fixed order = deterministic base)
+ALPHABET = OTIYOT_22 + SPACES + PUNCT
+BASE = len(ALPHABET)
+_INDEX = {ch: i for i, ch in enumerate(ALPHABET)}
+
 MASK64 = (1 << 64) - 1
-# base-22 digits fit in 64 bits: floor(64 * log(2) / log(22)) = 14 letters per word
-LETTERS_PER_U64 = 14
+# max symbols per 64-bit limb in this base
+CHARS_PER_U64 = max(1, int(math.floor(64 * math.log(2) / math.log(BASE))))
 
 
-def normalize_hebrew(text: str) -> str:
-    """Keep only 22-letter stream (map finals → base). Drop niqqud / non-letters."""
+def normalize_external(text: str) -> str:
+    """
+    External stream for packing:
+      · map Hebrew finals → base 22
+      · keep 22 letters, empty spaces, punctuation
+      · drop niqqud and anything outside the alphabet
+    """
     t = (text or "").translate(_FINALS)
-    out = []
+    out: list[str] = []
     for ch in t:
-        if ch in OTIYOT_22:
+        if ch in _INDEX:
             out.append(ch)
-        # skip spaces and other — external may include spaces for humans
     return "".join(out)
 
 
+def normalize_hebrew(text: str) -> str:
+    """Letters-only 22-stream (no spaces/punct). Kept for SY letter face."""
+    t = (text or "").translate(_FINALS)
+    return "".join(ch for ch in t if ch in OTIYOT_22)
+
+
+def char_index(ch: str) -> int | None:
+    if not ch:
+        return None
+    ch = ch.translate(_FINALS)
+    return _INDEX.get(ch)
+
+
 def letter_index(ch: str) -> int | None:
+    """Index in 22 otiyot only (0..21), or None."""
     ch = ch.translate(_FINALS) if ch else ch
     if not ch:
         return None
@@ -50,27 +87,33 @@ def letter_index(ch: str) -> int | None:
     return i if i >= 0 else None
 
 
-def hebrew_to_u64_limbs(text: str) -> list[int]:
+def external_to_u64_limbs(text: str) -> list[int]:
     """
-    Pack 22-letter combinations into 64-bit limbs (base-22).
-    Empty → [0]. Deterministic. Internal form of external Hebrew.
+    Pack external stream (22 letters + spaces + punct) into 64-bit limbs.
+    Empty stream → [0]. Deterministic.
     """
-    stream = normalize_hebrew(text)
+    stream = normalize_external(text)
     if not stream:
         return [0]
     limbs: list[int] = []
     i = 0
+    n = CHARS_PER_U64
     while i < len(stream):
-        chunk = stream[i : i + LETTERS_PER_U64]
+        chunk = stream[i : i + n]
         v = 0
         for ch in chunk:
-            idx = letter_index(ch)
+            idx = char_index(ch)
             if idx is None:
                 continue
-            v = v * 22 + idx
+            v = v * BASE + idx
         limbs.append(v & MASK64)
-        i += LETTERS_PER_U64
+        i += n
     return limbs or [0]
+
+
+def hebrew_to_u64_limbs(text: str) -> list[int]:
+    """Alias: full external pack (letters + spaces + punct)."""
+    return external_to_u64_limbs(text)
 
 
 def u64_limbs_to_hex(limbs: list[int]) -> list[str]:
@@ -97,28 +140,36 @@ def dual_rep(
 ) -> dict[str, Any]:
     """
     Always expose both faces of the law:
-      external: Hebrew (or tool speech string)
+      external: Hebrew + spaces + punctuation
       internal: 64-bit limbs + op u64
     """
-    limbs = hebrew_to_u64_limbs(external)
+    stream = normalize_external(external)
+    letters = normalize_hebrew(external)
+    limbs = external_to_u64_limbs(external)
     out: dict[str, Any] = {
         "law": {
             "babylonian": "64-bit internal",
             "hebrew": "22-letter combinations external (simplified from 64-bit)",
+            "spaces_punct": "empty spaces + punctuation included in external stream",
             "use": "Hebrew externally · 64-bit internally",
         },
         "external": {
             "speech": external,
-            "hebrew_stream_22": normalize_hebrew(external),
+            "stream": stream,
+            "hebrew_stream_22": letters,
             "otiyot_count": 22,
+            "includes_spaces": any(c in SPACES for c in stream),
+            "includes_punct": any(c in PUNCT for c in stream),
+            "alphabet_size": BASE,
         },
         "internal": {
             "u64_limbs": limbs,
             "u64_hex": u64_limbs_to_hex(limbs),
             "limb_count": len(limbs),
             "bits_per_limb": 64,
-            "letters_per_limb_max": LETTERS_PER_U64,
-            "base": 22,
+            "chars_per_limb_max": CHARS_PER_U64,
+            "base": BASE,
+            "base_note": "22 otiyot + spaces + punctuation",
         },
     }
     if op_id is not None:
@@ -127,16 +178,16 @@ def dual_rep(
         out["internal"]["op_u64_hex"] = f"{ou:016x}"
         out["internal"]["op_id"] = op_id
     if matches:
-        # each SY term: external Hebrew term + its internal u64
         terms = []
         for m in matches:
             fr = m.get("from") or ""
-            tl = hebrew_to_u64_limbs(fr)
+            tl = external_to_u64_limbs(fr)
             terms.append(
                 {
                     "id": m.get("id"),
                     "external": fr,
                     "to": m.get("to"),
+                    "stream": normalize_external(fr),
                     "internal_u64": tl[0] if tl else 0,
                     "internal_u64_hex": f"{(tl[0] if tl else 0):016x}",
                 }
@@ -149,8 +200,11 @@ def law_public() -> dict[str, Any]:
     return {
         "babylonian": "64-bit",
         "hebrew_simplification": "22-letter combinations (Sefer Yetzira)",
-        "external": "Hebrew (limited Book of Formations lexicon)",
-        "internal": "64-bit words (base-22 packed limbs + op_u64)",
+        "external": "Hebrew + empty spaces + punctuation",
+        "internal": "64-bit words (packed limbs + op_u64)",
         "otiyot_22": OTIYOT_22,
-        "letters_per_u64": LETTERS_PER_U64,
+        "spaces": ["sp", "tab", "lf", "cr", "nbsp"],
+        "punct": PUNCT,
+        "alphabet_size": BASE,
+        "chars_per_u64": CHARS_PER_U64,
     }
