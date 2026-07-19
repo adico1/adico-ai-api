@@ -60,25 +60,30 @@ def run_one(text: str) -> dict[str, Any]:
         }
 
     op_id = translated["id"]
-    params = translated["params"]
+    params = dict(translated["params"] or {})
     qoq = translated["question_of_question"]
-    key_preview = cache.canonical_key(op_id, params)
+
+    def _clean(p: dict) -> dict:
+        return {k: v for k, v in (p or {}).items() if not str(k).startswith("_")}
+
+    params_key = _clean(params)
+    key_preview = cache.canonical_key(op_id, params_key)
 
     # ── on-demand id decider: MEASURE FIRST ──
-    hit = cache.get(config.CACHE_PATH, op_id, params)
+    hit = cache.get(config.CACHE_PATH, op_id, params_key)
     if hit is not None:
-        ledger.measure_first(op_id, params, cache_hit=True, key=hit.get("key"))
+        ledger.measure_first(op_id, params_key, cache_hit=True, key=hit.get("key"))
         ata = dict(hit.get("answer_that_answers") or {})
         ata["source"] = "cache"
         ata["key"] = hit["key"]
         ata["reused"] = True
         ata["decider"] = "measure_first → cache_hit (no re-install, no re-execute)"
-        _attach_dual(ata, qoq, op_id, params)
+        _attach_dual(ata, qoq, op_id, params_key)
         return {
             "ok": True,
             "sealed": True,
             "id": op_id,
-            "params": params,
+            "params": params_key,
             "question_of_question": qoq,
             "answer": hit["answer"],
             "answer_that_answers": ata,
@@ -90,7 +95,7 @@ def run_one(text: str) -> dict[str, Any]:
         }
 
     # ── measure: must install and execute ──
-    ledger.measure_first(op_id, params, cache_hit=False, key=key_preview)
+    ledger.measure_first(op_id, params_key, cache_hit=False, key=key_preview)
     inst = catalog.install(op_id)
     sig_i = ledger.install_event(op_id, inst)
     if not inst.get("installed"):
@@ -120,7 +125,7 @@ def run_one(text: str) -> dict[str, Any]:
     ata = {
         "status": "executed",
         "id": op_id,
-        "params": {k: v for k, v in params.items() if not str(k).startswith("_")},
+        "params": params_key,
         "question_of_question": qoq,
         "install": inst,
         "source": "execute",
@@ -133,13 +138,13 @@ def run_one(text: str) -> dict[str, Any]:
         "ledger": {"install_sig": sig_i, "execute_sig": sig_e},
         "law": "compute_once · ledger on-demand · re-ask = measure cache hit",
     }
-    _attach_dual(ata, qoq, op_id, params)
-    rec = cache.put(config.CACHE_PATH, op_id, params, answer, ata)
+    _attach_dual(ata, qoq, op_id, params_key)
+    rec = cache.put(config.CACHE_PATH, op_id, params_key, answer, ata)
     return {
         "ok": True,
         "sealed": True,
         "id": op_id,
-        "params": ata["params"],
+        "params": params_key,
         "question_of_question": qoq,
         "answer": answer,
         "answer_that_answers": ata,
