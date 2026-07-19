@@ -233,9 +233,10 @@ TALK_FORMS: list[dict] = [
 ]
 
 # more math functions (add/sub/mul/div/mod/pow) — machine ops, ledger-signed
+import sys as _sys  # noqa: E402
 from . import math_ops as _math_ops  # noqa: E402
 
-_math_ops.register_into(__import__(__name__))
+_math_ops.register_into(_sys.modules[__name__])
 
 
 def talk_protocol() -> dict:
