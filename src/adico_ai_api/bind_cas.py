@@ -484,8 +484,10 @@ def register_into(catalog_mod) -> None:
 
             return _fn
 
+        # Prefer "name <expr>" so expressions with parentheses parse whole.
+        # Outer-wrap form only when entire args are one (...).
         patterns = [
-            rf"^(?:{alts})\s*\(\s*(.+)\s*\)\s*$",
+            rf"^(?:{alts})\((.+)\)\s*$",
             rf"^(?:{alts})\s+(.+)\s*$",
         ]
         catalog_mod._reg(
