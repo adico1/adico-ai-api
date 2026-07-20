@@ -30,10 +30,15 @@ No side path. No mystic math. Name = address; language growth = infinity.
 
 ## This step (now)
 
-- **φ⁰** already in `math_ops.py`
-- **φ¹** SymPy binds in `bind_cas.py` (if installed)
-- **φ³** thin SciPy binds when sympy+scipy present
-- Roadmap file = this doc
+| phase | status |
+|---|---|
+| **φ⁰** | `math_ops.py` stdlib |
+| **φ¹** | SymPy expanded: algebra, calculus, ODE `dsolve`, matrices, sum/product, latex, … |
+| **φ²** | NumPy: mean, std, sum, dot, matmul, norm, linspace |
+| **φ³** | SciPy: quad, root_scalar, det, eig, fft |
+| **φ⁴+** | units/knowledge / optional Wolfram engine — next waves |
+
+File: `bind_cas.py` · install: `requirements-math.txt`
 
 ## Install engines (clone/use, not invent)
 
@@ -45,16 +50,34 @@ pip install 'sympy>=1.12' 'numpy>=1.26' 'scipy>=1.11'
 ## Speech examples (machine forms)
 
 ```text
-simplify (x**2 + 2*x + 1)
+# φ¹ sympy
+simplify x**2+2*x+1
 expand (x+1)**3
 factor x**2-1
 diff sin(x)
-diff sin(x) x
 integrate x**2
 solve x**2-1
+dsolve f(x).diff(x)-f(x)
 limit sin(x)/x x 0
 series exp(x)
+summation k**2 k 1 10
+subs x**2+1 x 3
+evalf pi 30
+matrix 1 2; 3 4
+eigenvals 1 2; 2 1
+inv 1 2; 3 4
+latex (x+1)**2
+
+# φ² numpy
+np_mean 1 2 3 4
+np_dot 1 2 3 | 4 5 6
+np_linspace 0 1 5
+
+# φ³ scipy
 quad x**2 0 1
+det 1 2; 3 4
+eig 1 2; 2 1
+fft 1 2 3 4
 ```
 
 Domain separates short speech:
